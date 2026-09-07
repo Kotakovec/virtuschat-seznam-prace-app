@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#2563eb">
-  <title>Týmový To-Do List</title>
+  <meta name="theme-color" content="#0f172a">
+  <title>VirtusChat To-Do</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
+      --bg-color: #0b0f19;
+      --card-bg: #151d30;
+      --card-hover: #1b263e;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --primary: #3b82f6;
       --primary-hover: #2563eb;
       --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --border: #334155;
+      --border: #23314e;
       --accent: #10b981;
     }
 
@@ -24,148 +24,119 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      display: flex;
-      justify-content: center;
       min-height: 100vh;
-      padding: 20px 15px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 650px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      align-items: center;
+      padding-bottom: 90px;
     }
 
+    /* Horní lišta */
     header {
-      text-align: center;
-      padding: 10px 0;
+      width: 100%;
+      max-width: 700px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
     }
 
     header h1 {
-      font-size: 1.8rem;
+      font-size: 1.25rem;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
 
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-    }
-
-    .card h2 {
-      font-size: 1.1rem;
-      margin-bottom: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    form {
+    .auth-section {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 10px;
     }
 
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    input, select, button {
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      border: 1px solid var(--border);
-      background-color: #0b1329;
-      color: var(--text-main);
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--primary);
-    }
-
-    button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.2s ease;
-      white-space: nowrap;
-    }
-
-    button:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-danger {
-      background-color: var(--danger);
-    }
-
-    .btn-danger:hover {
-      background-color: var(--danger-hover);
-    }
-
-    /* Správa členů týmu */
-    .people-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .tag {
-      background-color: #334155;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
+    .auth-user-badge {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 0.85rem;
+      background: #080c14;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
     }
 
-    .tag button {
-      background: none;
+    .role-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      background: var(--primary);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    button {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
       border: none;
-      color: #cbd5e1;
       cursor: pointer;
-      font-size: 1rem;
-      padding: 0;
-      line-height: 1;
+      font-weight: 600;
+      transition: all 0.2s ease;
     }
 
-    .tag button:hover {
-      color: var(--danger);
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
     }
 
-    /* Seznam úkolů */
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #23314e;
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: #314368;
+    }
+
+    /* Úkoly */
+    .container {
+      width: 100%;
+      max-width: 700px;
+      padding: 20px 16px;
+    }
+
     .task-list {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .task-item {
-      background-color: #0b1329;
+      background-color: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
+      border-radius: 12px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      transition: background 0.2s;
+    }
+
+    .task-item:hover {
+      background-color: var(--card-hover);
     }
 
     .task-item.completed .task-text {
@@ -175,14 +146,15 @@
 
     .task-left {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start;
+      gap: 14px;
       flex: 1;
     }
 
     .task-left input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
+      margin-top: 3px;
       cursor: pointer;
       accent-color: var(--accent);
     }
@@ -190,7 +162,7 @@
     .task-details {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 8px;
     }
 
     .task-text {
@@ -198,211 +170,570 @@
       word-break: break-word;
     }
 
-    .task-assignee {
-      font-size: 0.8rem;
-      display: inline-block;
-      width: fit-content;
-      background-color: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
-      padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid rgba(59, 130, 246, 0.3);
+    .assignees-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    .task-assignee.unassigned {
-      background-color: rgba(148, 163, 184, 0.1);
+    .assignee-chip {
+      font-size: 0.75rem;
+      background-color: #090e19;
+      color: #93c5fd;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
       color: var(--text-muted);
-      border-color: rgba(148, 163, 184, 0.2);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px 8px;
     }
 
-    .empty-state {
+    .btn-delete:hover {
+      color: var(--danger);
+    }
+
+    .empty-msg {
       text-align: center;
       color: var(--text-muted);
-      padding: 20px;
+      padding: 40px 0;
+    }
+
+    /* Plovoucí tlačítko vlevo dole */
+    .fab-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      font-size: 2.2rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      line-height: 0;
+      padding: 0;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .fab-btn:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.06);
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Přihlašovací Modal */
+    .login-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 360px;
+      z-index: 101;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .login-modal.active {
+      display: flex;
+    }
+
+    .login-modal h2 {
+      font-size: 1.2rem;
+    }
+
+    .login-modal input {
+      padding: 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: #0b1329;
+      color: var(--text-main);
       font-size: 0.95rem;
+      outline: none;
+    }
+
+    .login-modal input:focus {
+      border-color: var(--primary);
+    }
+
+    .login-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    /* Spodní vysouvací panel */
+    .bottom-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px 20px 32px;
+      z-index: 101;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .bottom-sheet.active {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 44px;
+      height: 4px;
+      background-color: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    .bottom-sheet h2 {
+      font-size: 1.2rem;
+      margin-bottom: 14px;
+    }
+
+    .bottom-sheet input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: #0b1329;
+      color: var(--text-main);
+      font-size: 1rem;
+      margin-bottom: 18px;
+      outline: none;
+    }
+
+    .bottom-sheet input[type="text"]:focus {
+      border-color: var(--primary);
+    }
+
+    .sheet-section-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Klikací avataři lidí */
+    .people-selector {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+
+    .person-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      min-width: 64px;
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #23314e;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.15rem;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .person-chip span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .person-chip.selected .avatar {
+      background-color: var(--primary);
+      border-color: #93c5fd;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.45);
+    }
+
+    .person-chip.selected span {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .sheet-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
 
+  <!-- Horní navigace -->
+  <header>
+    <h1>VirtusChat To-Do</h1>
+    <div class="auth-section" id="auth-section">
+      <button class="btn-primary" id="btn-open-login">Přihlásit se</button>
+    </div>
+  </header>
+
+  <!-- Úkoly -->
   <div class="container">
-    <header>
-      <h1>Úkoly & Tým</h1>
-    </header>
+    <ul class="task-list" id="task-list"></ul>
+    <div class="empty-msg" id="empty-msg">Načítám úkoly z databáze...</div>
+  </div>
 
-    <!-- Správa lidí -->
-    <div class="card">
-      <h2>Lidé v týmu</h2>
-      <form id="person-form">
-        <div class="input-row">
-          <input type="text" id="person-input" placeholder="Jméno (např. Petr)" style="flex: 1;" required>
-          <button type="submit">Přidat člověka</button>
-        </div>
-      </form>
-      <div class="people-tags" id="people-container"></div>
-    </div>
+  <!-- Plovoucí tlačítko vlevo dole (pouze pro Jakub & Daniel) -->
+  <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-    <!-- Vytvoření úkolu -->
-    <div class="card">
-      <h2>Nový úkol</h2>
-      <form id="todo-form">
-        <input type="text" id="todo-input" placeholder="Co je potřeba udělat?" required>
-        <div class="input-row">
-          <select id="todo-assignee" style="flex: 1;">
-            <option value="">-- Bez přiřazení --</option>
-          </select>
-          <button type="submit">Přidat úkol</button>
-        </div>
-      </form>
-    </div>
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
 
-    <!-- Seznam úkolů -->
-    <div class="card">
-      <h2>Seznam úkolů</h2>
-      <ul class="task-list" id="task-list"></ul>
-      <div id="empty-state" class="empty-state" style="display: none;">Žádné úkoly k zobrazení.</div>
+  <!-- Přihlášení -->
+  <div class="login-modal" id="login-modal">
+    <h2>Přihlášení</h2>
+    <input type="text" id="login-username" placeholder="Uživatelské jméno (např. jakub)" autocomplete="username">
+    <input type="password" id="login-password" placeholder="Heslo" autocomplete="current-password">
+    <div class="login-modal-actions">
+      <button class="btn-secondary" id="btn-close-login">Zrušit</button>
+      <button class="btn-primary" id="btn-submit-login">Přihlásit</button>
     </div>
   </div>
 
-  <script>
-    // Inicializace dat z LocalStorage
-    let people = JSON.parse(localStorage.getItem('pwa_todo_people')) || ['Kuba', 'Honza', 'David'];
-    let tasks = JSON.parse(localStorage.getItem('pwa_todo_tasks')) || [];
+  <!-- Spodní panel nového úkolu -->
+  <div class="bottom-sheet" id="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <h2>Nový úkol</h2>
+    <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
 
-    // DOM elementy
-    const personForm = document.getElementById('person-form');
-    const personInput = document.getElementById('person-input');
-    const peopleContainer = document.getElementById('people-container');
-    const todoForm = document.getElementById('todo-form');
-    const todoInput = document.getElementById('todo-input');
-    const todoAssignee = document.getElementById('todo-assignee');
+    <div class="sheet-section-title">Přiřadit lidi:</div>
+    <div class="people-selector" id="people-selector"></div>
+
+    <div class="sheet-actions">
+      <button class="btn-secondary" id="btn-close-sheet">Zavřít</button>
+      <button class="btn-primary" id="btn-confirm-add-task">Přidat úkol</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-WH9nN8yipLOqsQz06184LBNHrdzX5ow",
+      authDomain: "chat-82f9f.firebaseapp.com",
+      databaseURL: "https://chat-82f9f-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "chat-82f9f",
+      storageBucket: "chat-82f9f.firebasestorage.app",
+      messagingSenderId: "1048160738014",
+      appId: "1:1048160738014:web:ab9c03fbe8d0eedc27804f",
+      measurementId: "G-R4BHQX7144"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const todosRef = ref(db, 'todos');
+    const usersRef = ref(db, 'users');
+
+    let currentUser = JSON.parse(localStorage.getItem('pwa_logged_user')) || null;
+    let allUsers = {};
+    let selectedPeople = [];
+
+    const authSection = document.getElementById('auth-section');
+    const btnOpenLogin = document.getElementById('btn-open-login');
+    const btnCloseLogin = document.getElementById('btn-close-login');
+    const btnSubmitLogin = document.getElementById('btn-submit-login');
+    const loginModal = document.getElementById('login-modal');
+    const overlay = document.getElementById('overlay');
+    const loginUsername = document.getElementById('login-username');
+    const loginPassword = document.getElementById('login-password');
+
+    const fabAdd = document.getElementById('fab-add');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const btnCloseSheet = document.getElementById('btn-close-sheet');
+    const btnConfirmAddTask = document.getElementById('btn-confirm-add-task');
+    const taskInput = document.getElementById('task-input');
+    const peopleSelector = document.getElementById('people-selector');
     const taskList = document.getElementById('task-list');
-    const emptyState = document.getElementById('empty-state');
+    const emptyMsg = document.getElementById('empty-msg');
 
-    function saveData() {
-      localStorage.setItem('pwa_todo_people', JSON.stringify(people));
-      localStorage.setItem('pwa_todo_tasks', JSON.stringify(tasks));
+    function updateAuthUI() {
+      if (currentUser) {
+        authSection.innerHTML = `
+          <div class="auth-user-badge">
+            <span>👤 ${currentUser.name}</span>
+            <span class="role-tag">${currentUser.role}</span>
+          </div>
+          <button class="btn-secondary" id="btn-logout" style="padding: 5px 10px; font-size: 0.8rem;">Odhlásit</button>
+        `;
+        document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+        if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
+          fabAdd.style.display = 'flex';
+        } else {
+          fabAdd.style.display = 'none';
+        }
+      } else {
+        authSection.innerHTML = `<button class="btn-primary" id="btn-open-login">Přihlásit se</button>`;
+        document.getElementById('btn-open-login').addEventListener('click', openLoginModal);
+        fabAdd.style.display = 'none';
+      }
     }
 
-    function renderPeople() {
-      peopleContainer.innerHTML = '';
-      todoAssignee.innerHTML = '<option value="">-- Bez přiřazení --</option>';
+    function openLoginModal() {
+      loginModal.classList.add('active');
+      overlay.classList.add('active');
+      loginUsername.value = '';
+      loginPassword.value = '';
+      loginUsername.focus();
+    }
 
-      people.forEach((person, index) => {
-        // Tag v seznamu lidí
-        const tag = document.createElement('div');
-        tag.className = 'tag';
-        tag.innerHTML = `
-          <span>${person}</span>
-          <button type="button" onclick="removePerson(${index})" title="Odebrat">×</button>
+    function closeLoginModal() {
+      loginModal.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    btnOpenLogin.addEventListener('click', openLoginModal);
+    btnCloseLogin.addEventListener('click', closeLoginModal);
+
+    btnSubmitLogin.addEventListener('click', async () => {
+      const usernameKey = loginUsername.value.trim().toLowerCase();
+      const password = loginPassword.value.trim();
+
+      if (!usernameKey || !password) {
+        alert('Vyplň jméno i heslo.');
+        return;
+      }
+
+      try {
+        const snapshot = await get(ref(db, `users/${usernameKey}`));
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          if (userData.password === password) {
+            currentUser = {
+              id: usernameKey,
+              name: userData.name || usernameKey,
+              role: userData.role || 'user'
+            };
+            localStorage.setItem('pwa_logged_user', JSON.stringify(currentUser));
+            updateAuthUI();
+            closeLoginModal();
+          } else {
+            alert('Nesprávné heslo.');
+          }
+        } else {
+          alert('Uživatel s tímto jménem neexistuje v databázi.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Chyba při komunikaci s Firebase.');
+      }
+    });
+
+    function handleLogout() {
+      currentUser = null;
+      localStorage.removeItem('pwa_logged_user');
+      updateAuthUI();
+      closeBottomSheet();
+    }
+
+    onValue(usersRef, (snapshot) => {
+      allUsers = snapshot.val() || {};
+      renderPeopleSelector();
+    });
+
+    function renderPeopleSelector() {
+      peopleSelector.innerHTML = '';
+      Object.keys(allUsers).forEach((key) => {
+        const person = allUsers[key];
+        const personName = person.name || key;
+        const chip = document.createElement('div');
+        chip.className = `person-chip ${selectedPeople.includes(personName) ? 'selected' : ''}`;
+        
+        const initial = personName.charAt(0).toUpperCase();
+
+        chip.innerHTML = `
+          <div class="avatar">${initial}</div>
+          <span>${personName}</span>
         `;
-        peopleContainer.appendChild(tag);
 
-        // Volba v selectu přiřazení
-        const option = document.createElement('option');
-        option.value = person;
-        option.textContent = person;
-        todoAssignee.appendChild(option);
+        chip.addEventListener('click', () => {
+          if (selectedPeople.includes(personName)) {
+            selectedPeople = selectedPeople.filter(item => item !== personName);
+            chip.classList.remove('selected');
+          } else {
+            selectedPeople.push(personName);
+            chip.classList.add('selected');
+          }
+        });
+
+        peopleSelector.appendChild(chip);
       });
     }
 
-    function renderTasks() {
-      taskList.innerHTML = '';
+    function openBottomSheet() {
+      selectedPeople = [];
+      taskInput.value = '';
+      renderPeopleSelector();
+      bottomSheet.classList.add('active');
+      overlay.classList.add('active');
+      taskInput.focus();
+    }
 
-      if (tasks.length === 0) {
-        emptyState.style.display = 'block';
+    function closeBottomSheet() {
+      bottomSheet.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    fabAdd.addEventListener('click', openBottomSheet);
+    btnCloseSheet.addEventListener('click', closeBottomSheet);
+    overlay.addEventListener('click', () => {
+      closeLoginModal();
+      closeBottomSheet();
+    });
+
+    btnConfirmAddTask.addEventListener('click', () => {
+      const text = taskInput.value.trim();
+      if (!text) {
+        alert('Zadej text úkolu.');
         return;
       }
-      emptyState.style.display = 'none';
 
-      tasks.forEach((task, index) => {
+      push(todosRef, {
+        text: text,
+        completed: false,
+        assignees: selectedPeople,
+        createdAt: Date.now(),
+        createdBy: currentUser ? currentUser.name : 'Neznámý'
+      }).then(() => {
+        closeBottomSheet();
+      }).catch(err => {
+        console.error(err);
+      });
+    });
+
+    onValue(todosRef, (snapshot) => {
+      taskList.innerHTML = '';
+      const data = snapshot.val();
+
+      if (!data) {
+        emptyMsg.textContent = 'Žádné úkoly k zobrazení.';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+
+      emptyMsg.style.display = 'none';
+
+      const tasks = Object.entries(data).map(([id, task]) => ({ id, ...task }));
+      tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      tasks.forEach((task) => {
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
-        const isAssigned = task.assignee && task.assignee.trim() !== '';
-        const badgeClass = isAssigned ? 'task-assignee' : 'task-assignee unassigned';
-        const badgeText = isAssigned ? `👤 ${task.assignee}` : 'Nepřiřazeno';
+        let assigneesHtml = '';
+        if (task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0) {
+          assigneesHtml = task.assignees.map(name => `
+            <span class="assignee-chip">👤 ${name}</span>
+          `).join('');
+        }
+
+        const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
+        const deleteButtonHtml = isAdmin
+          ? `<button class="btn-delete" title="Smazat úkol" data-id="${task.id}">✕</button>`
+          : '';
 
         li.innerHTML = `
           <div class="task-left">
-            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}">
             <div class="task-details">
               <span class="task-text">${task.text}</span>
-              <span class="${badgeClass}">${badgeText}</span>
+              ${assigneesHtml ? `<div class="assignees-container">${assigneesHtml}</div>` : ''}
             </div>
           </div>
-          <button class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem;" onclick="deleteTask(${index})">Smazat</button>
+          ${deleteButtonHtml}
         `;
+
+        li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+          update(ref(db, `todos/${task.id}`), {
+            completed: e.target.checked
+          });
+        });
+
+        if (isAdmin) {
+          li.querySelector('.btn-delete').addEventListener('click', () => {
+            remove(ref(db, `todos/${task.id}`));
+          });
+        }
 
         taskList.appendChild(li);
       });
-    }
-
-    // Formulář pro přidání osoby
-    personForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = personInput.value.trim();
-      if (name && !people.includes(name)) {
-        people.push(name);
-        saveData();
-        renderPeople();
-        personInput.value = '';
-      }
     });
 
-    // Odebrání osoby
-    window.removePerson = function(index) {
-      people.splice(index, 1);
-      saveData();
-      renderPeople();
-    };
-
-    // Přidání úkolu
-    todoForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = todoInput.value.trim();
-      const assignee = todoAssignee.value;
-
-      if (text) {
-        tasks.push({
-          text: text,
-          assignee: assignee,
-          completed: false,
-          id: Date.now()
-        });
-        saveData();
-        renderTasks();
-        todoInput.value = '';
-        todoAssignee.value = '';
-      }
-    });
-
-    // Stav splnění úkolu
-    window.toggleTask = function(index) {
-      tasks[index].completed = !tasks[index].completed;
-      saveData();
-      renderTasks();
-    };
-
-    // Smazání úkolu
-    window.deleteTask = function(index) {
-      tasks.splice(index, 1);
-      saveData();
-      renderTasks();
-    };
-
-    // Registrace Service Workeru pro PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('Service Worker úspěšně zaregistrován.'))
-          .catch((err) => console.log('Chyba registrace SW:', err));
+          .then(() => console.log('SW registrován.'))
+          .catch((err) => console.log('SW chyba:', err));
       });
     }
 
-    // Prvotní vykreslení
-    renderPeople();
-    renderTasks();
+    updateAuthUI();
   </script>
 </body>
 </html>
