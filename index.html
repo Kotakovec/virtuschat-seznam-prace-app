@@ -350,7 +350,6 @@
       user-select: text;
     }
 
-    /* Pilulka schváleno */
     .badge-approved {
       background: rgba(16, 185, 129, 0.2);
       border: 1px solid rgba(16, 185, 129, 0.5);
@@ -369,7 +368,7 @@
       word-break: break-word;
     }
 
-    /* Tlačítka pro Admina (místo tužky) */
+    /* Tlačítka pro Admina */
     .task-actions-right {
       display: flex;
       align-items: center;
@@ -701,6 +700,33 @@
       font-weight: 600;
     }
 
+    /* Informace o schváleném úkolu v modalu */
+    .approved-task-info {
+      background: #0b1329;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .approved-task-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .approved-task-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
     .sheet-actions {
       display: flex;
       gap: 10px;
@@ -727,11 +753,17 @@
       color: white;
     }
 
+    .btn-sheet-reopen {
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
     .btn-sheet-danger {
       background: rgba(239, 68, 68, 0.2);
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      border: 1px solid rgba(239, 68, 68, 0.5);
       color: #f87171;
-      flex: 0.6 !important;
     }
 
     /* Modály */
@@ -1040,26 +1072,37 @@
     <div class="sheet-handle"></div>
     <h2 id="sheet-title">Nový úkol</h2>
     
-    <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
-
-    <div class="sheet-label">Termín:</div>
-    <div class="date-row">
-      <div class="date-field">
-        <span>Od:</span>
-        <input type="datetime-local" id="task-start-date">
-      </div>
-      <div class="date-field">
-        <span>Do:</span>
-        <input type="datetime-local" id="task-due-date">
-      </div>
+    <!-- Zobrazení schváleného úkolu (když nepůjde editovat) -->
+    <div id="approved-info-wrap" class="approved-task-info" style="display: none;">
+      <div class="approved-task-title" id="approved-info-title"></div>
+      <div class="approved-task-meta" id="approved-info-meta"></div>
     </div>
 
-    <div class="sheet-label">Přiřadit lidi (klepnutím vyber):</div>
-    <div class="people-selector" id="people-selector"></div>
+    <!-- Editovatelná pole (pro ne-schválené úkoly) -->
+    <div id="editable-fields-wrap">
+      <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
 
+      <div class="sheet-label">Termín:</div>
+      <div class="date-row">
+        <div class="date-field">
+          <span>Od:</span>
+          <input type="datetime-local" id="task-start-date">
+        </div>
+        <div class="date-field">
+          <span>Do:</span>
+          <input type="datetime-local" id="task-due-date">
+        </div>
+      </div>
+
+      <div class="sheet-label">Přiřadit lidi (klepnutím vyber):</div>
+      <div class="people-selector" id="people-selector"></div>
+    </div>
+
+    <!-- Tlačítka dole -->
     <div class="sheet-actions">
       <button class="btn-sheet-secondary" id="btn-close-sheet">Zavřít</button>
       <button class="btn-sheet-danger" id="btn-delete-task-sheet" style="display: none;">Smazat</button>
+      <button class="btn-sheet-reopen" id="btn-reopen-task-sheet" style="display: none;">Znovu otevřít</button>
       <button class="btn-sheet-primary" id="btn-save-task">Uložit úkol</button>
     </div>
   </div>
@@ -1144,6 +1187,12 @@
     const btnCloseSheet = document.getElementById('btn-close-sheet');
     const btnSaveTask = document.getElementById('btn-save-task');
     const btnDeleteTaskSheet = document.getElementById('btn-delete-task-sheet');
+    const btnReopenTaskSheet = document.getElementById('btn-reopen-task-sheet');
+    const approvedInfoWrap = document.getElementById('approved-info-wrap');
+    const approvedInfoTitle = document.getElementById('approved-info-title');
+    const approvedInfoMeta = document.getElementById('approved-info-meta');
+    const editableFieldsWrap = document.getElementById('editable-fields-wrap');
+
     const taskInput = document.getElementById('task-input');
     const taskStartDate = document.getElementById('task-start-date');
     const taskDueDate = document.getElementById('task-due-date');
@@ -1431,7 +1480,7 @@
         const dayStr = String(day).padStart(2, '0');
         const cellDateStr = `${year}-${monthStr}-${dayStr}`;
 
-        // Schválené/hotové úkoly NEMUTEJÍ mít tečku v kalendáři
+        // Schválené úkoly nemají tečku v kalendáři
         const dayTasks = rawTasks.filter(t => {
           const isDone = t.completed || t.status === 'completed';
           if (isDone) return false;
@@ -1543,29 +1592,67 @@
       });
     }
 
+    // Otevření bottom sheetu
     function openBottomSheet(task = null) {
       if (task) {
         editingTaskId = task.id;
-        sheetTitle.textContent = 'Upravit úkol';
-        taskInput.value = task.text || '';
-        taskStartDate.value = task.startDate || '';
-        taskDueDate.value = task.dueDate || '';
-        selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
-        btnDeleteTaskSheet.style.display = 'block';
+        const isApproved = task.completed || task.status === 'completed';
+
+        if (isApproved) {
+          // U SCHVÁLENÉHO ÚKOLU: nelze upravovat čas ani text, pouze Znovu otevřít nebo Smazat
+          sheetTitle.textContent = 'Schválený úkol';
+          editableFieldsWrap.style.display = 'none';
+          approvedInfoWrap.style.display = 'flex';
+          approvedInfoTitle.textContent = task.text;
+
+          let metaText = [];
+          if (task.startDate) metaText.push(`Od: ${formatDateShort(task.startDate)}`);
+          if (task.dueDate) metaText.push(`Do: ${formatDateTime(task.dueDate)}`);
+          if (task.assignees && task.assignees.length > 0) metaText.push(`Přiřazeno: ${task.assignees.join(', ')}`);
+
+          approvedInfoMeta.innerHTML = metaText.join('<br>') || 'Bez termínu';
+
+          btnSaveTask.style.display = 'none';
+          btnReopenTaskSheet.style.display = 'block';
+          btnDeleteTaskSheet.style.display = 'block';
+        } else {
+          // Běžná editace aktivního úkolu
+          sheetTitle.textContent = 'Upravit úkol';
+          editableFieldsWrap.style.display = 'block';
+          approvedInfoWrap.style.display = 'none';
+
+          taskInput.value = task.text || '';
+          taskStartDate.value = task.startDate || '';
+          taskDueDate.value = task.dueDate || '';
+          selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
+
+          btnSaveTask.style.display = 'block';
+          btnReopenTaskSheet.style.display = 'none';
+          btnDeleteTaskSheet.style.display = 'block';
+        }
       } else {
+        // Vytvoření nového úkolu
         editingTaskId = null;
         sheetTitle.textContent = 'Nový úkol';
+        editableFieldsWrap.style.display = 'block';
+        approvedInfoWrap.style.display = 'none';
+
         taskInput.value = '';
         taskStartDate.value = '';
         taskDueDate.value = '';
         selectedPeople = [];
+
+        btnSaveTask.style.display = 'block';
+        btnReopenTaskSheet.style.display = 'none';
         btnDeleteTaskSheet.style.display = 'none';
       }
 
       renderPeopleSelector();
       bottomSheet.classList.add('active');
       overlay.classList.add('active');
-      taskInput.focus();
+      if (editableFieldsWrap.style.display !== 'none') {
+        taskInput.focus();
+      }
     }
 
     function closeBottomSheet() {
@@ -1577,6 +1664,19 @@
     fabAdd.addEventListener('click', () => openBottomSheet(null));
     btnCloseSheet.addEventListener('click', closeBottomSheet);
 
+    // Tlačítko Znovu otevřít pro admina (unmarkne schválený úkol)
+    btnReopenTaskSheet.addEventListener('click', () => {
+      if (editingTaskId) {
+        update(ref(db, `todos/${editingTaskId}`), {
+          completed: false,
+          status: 'active'
+        }).then(() => {
+          closeBottomSheet();
+        });
+      }
+    });
+
+    // Smazání úkolu
     btnDeleteTaskSheet.addEventListener('click', () => {
       if (editingTaskId && confirm('Opravdu chceš tento úkol smazat?')) {
         remove(ref(db, `todos/${editingTaskId}`)).then(() => {
@@ -1614,7 +1714,7 @@
         const randomColor = DISTINCT_COLORS[Math.floor(Math.random() * DISTINCT_COLORS.length)];
         taskPayload.color = randomColor;
         taskPayload.completed = false;
-        taskPayload.status = 'active'; // 'active' | 'pending_approval' | 'rejected' | 'completed'
+        taskPayload.status = 'active';
         taskPayload.createdAt = Date.now();
         taskPayload.createdBy = currentUser ? currentUser.name : 'Neznámý';
 
@@ -1695,7 +1795,7 @@
 
       emptyMsg.style.display = 'none';
 
-      // Schválené jdou dolů
+      // ŘAZENÍ: Schválené/dokončené jdou ÚPLNĚ DOLŮ pod všechny ostatní
       displayTasks.sort((a, b) => {
         const aCompleted = a.completed || a.status === 'completed';
         const bCompleted = b.completed || b.status === 'completed';
@@ -1750,6 +1850,7 @@
           metaHtml += `<div class="assignees-wrap">${assigneesHtml}</div>`;
         }
 
+        // Tlačítka pro Admina
         let actionsHtml = '';
         if (isAdmin) {
           if (isPending) {
@@ -1760,9 +1861,10 @@
               </div>
             `;
           } else {
+            // Tužka je dostupná i pro schválené úkoly pro unmark/smazání
             actionsHtml = `
               <div class="task-actions-right">
-                <button class="btn-icon edit" title="Upravit úkol">✏️</button>
+                <button class="btn-icon edit" title="${isCompleted ? 'Správa schváleného úkolu' : 'Upravit úkol'}">✏️</button>
               </div>
             `;
           }
@@ -1771,7 +1873,7 @@
         const checkboxDisabled = (!isAdmin && isPending) || isCompleted ? 'disabled' : '';
         const checkboxChecked = isCompleted || isPending ? 'checked' : '';
 
-        // Pokud je úkol schválený, tečka se z úkolu kompletně ODEBERE
+        // Pokud je úkol schválený, barevná tečka se z úkolu kompletně ODEBERE
         const statusDotHtml = !isCompleted ? `<span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>` : '';
         const approvedBadgeHtml = isCompleted ? `<span class="badge-approved">Schváleno</span>` : '';
 
