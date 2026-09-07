@@ -115,7 +115,7 @@
       border: 1px solid var(--border-light);
       border-radius: 14px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-      width: 220px;
+      width: 200px;
       display: none;
       flex-direction: column;
       overflow: hidden;
@@ -128,20 +128,14 @@
     }
 
     .dropdown-header {
-      padding: 8px 14px 10px;
+      padding: 10px 14px;
       border-bottom: 1px solid var(--border);
     }
 
     .dropdown-user-name {
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--text-main);
-    }
-
-    .dropdown-user-role {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
     }
 
     .dropdown-item {
@@ -175,7 +169,7 @@
       gap: 10px;
     }
 
-    /* Tlačítko kalendáře jako kapsle */
+    /* Kapsle kalendáře */
     .cal-capsule-btn {
       display: flex;
       align-items: center;
@@ -228,7 +222,7 @@
       color: white;
     }
 
-    /* Červený notifikační banner */
+    /* Oznámení: moje úkoly */
     .info-banner {
       width: 100%;
       background: #7f1d1d;
@@ -430,15 +424,17 @@
       transform: scale(0.95);
     }
 
+    /* Přepínač Vše / Moje (skrytý pro běžného uživatele) */
     .filter-switch {
       background: #141c2e;
       border: 1px solid var(--border-light);
       border-radius: 24px;
       padding: 4px;
-      display: flex;
+      display: none; /* Zapne se pouze pro roli admin */
       gap: 4px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
       pointer-events: auto;
+      margin-left: auto; /* Pokud není vlevo tlačítko +, zarovná se vpravo */
     }
 
     .filter-btn {
@@ -821,11 +817,10 @@
         <span class="arrow">▼</span>
       </div>
 
-      <!-- Dropdown menu -->
+      <!-- Dropdown menu (bez rolí) -->
       <div class="portal-dropdown" id="portal-dropdown">
         <div class="dropdown-header">
           <div class="dropdown-user-name" id="dropdown-user-name">Nepřihlášen</div>
-          <div class="dropdown-user-role" id="dropdown-user-role">Host</div>
         </div>
         <button class="dropdown-item" id="btn-menu-change-pwd">
           <span>🔒</span> Změna hesla
@@ -836,12 +831,12 @@
       </div>
     </div>
 
-    <!-- Vpravo nahoře tlačítko kalendáře jako kapsle -->
+    <!-- Vpravo nahoře kapsle kalendáře -->
     <div class="header-right">
       <button class="cal-capsule-btn" id="cal-badge" title="Otevřít kalendář úkolů">
         <span class="cal-capsule-icon">📅</span>
         <span class="cal-capsule-text">Kalendář</span>
-        <span class="cal-capsule-date" id="cal-date-text">7. 9.</span>
+        <span class="cal-capsule-date" id="cal-date-text"></span>
       </button>
       <button class="auth-btn" id="btn-open-login" style="display: none;">Přihlásit</button>
     </div>
@@ -863,7 +858,8 @@
   <div class="bottom-bar">
     <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-    <div class="filter-switch">
+    <!-- Přepínač viditelný pouze pro Admina -->
+    <div class="filter-switch" id="filter-switch">
       <button class="filter-btn active" id="filter-all">
         <span>🌐</span> Vše
       </button>
@@ -895,7 +891,6 @@
 
     <div class="cal-grid-days" id="cal-days-container"></div>
 
-    <!-- Výpis úkolů pro vybraný den -->
     <div class="cal-day-details" id="cal-day-details" style="display: none;">
       <div class="cal-day-details-title" id="cal-selected-day-text">Úkoly pro daný den:</div>
       <div id="cal-selected-tasks-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
@@ -991,7 +986,6 @@
     const portalTitleBtn = document.getElementById('portal-title-btn');
     const portalDropdown = document.getElementById('portal-dropdown');
     const dropdownUserName = document.getElementById('dropdown-user-name');
-    const dropdownUserRole = document.getElementById('dropdown-user-role');
     const btnMenuChangePwd = document.getElementById('btn-menu-change-pwd');
     const btnMenuLogout = document.getElementById('btn-menu-logout');
 
@@ -1003,6 +997,7 @@
     const bannerActivePill = document.getElementById('banner-active-pill');
 
     const fabAdd = document.getElementById('fab-add');
+    const filterSwitch = document.getElementById('filter-switch');
     const filterAllBtn = document.getElementById('filter-all');
     const filterMyBtn = document.getElementById('filter-my');
     const taskList = document.getElementById('task-list');
@@ -1059,7 +1054,6 @@
       return DISTINCT_COLORS[index];
     }
 
-    // Nastavení dnešního dne do kapsle nahoře
     function updateTodayBadge() {
       const now = new Date();
       calDateText.textContent = `${now.getDate()}. ${now.getMonth() + 1}.`;
@@ -1071,20 +1065,26 @@
         calBadge.style.display = 'flex';
         btnOpenLogin.style.display = 'none';
 
+        // Čisté jméno bez rolí
         dropdownUserName.textContent = currentUser.name;
-        dropdownUserRole.textContent = currentUser.role === 'admin' ? 'Administrátor' : 'Developer';
 
-        if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
+        const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
+
+        if (isAdmin) {
           fabAdd.style.display = 'flex';
+          filterSwitch.style.display = 'flex';
         } else {
           fabAdd.style.display = 'none';
+          filterSwitch.style.display = 'none';
+          currentFilter = 'my'; // Běžný uživatel vidí automaticky jen své úkoly
         }
       } else {
         calBadge.style.display = 'none';
         btnOpenLogin.style.display = 'block';
         dropdownUserName.textContent = 'Nepřihlášen';
-        dropdownUserRole.textContent = 'Host';
         fabAdd.style.display = 'none';
+        filterSwitch.style.display = 'none';
+        currentFilter = 'all';
       }
       updateMyNotificationBanner();
       renderTasks();
@@ -1414,7 +1414,6 @@
       });
     }
 
-    // Otevření okna pro přidání / úpravu úkolu
     function openBottomSheet(task = null) {
       if (task) {
         editingTaskId = task.id;
@@ -1427,7 +1426,6 @@
         editingTaskId = null;
         sheetTitle.textContent = 'Nový úkol';
         taskInput.value = '';
-        // Pole Od i Do necháme čisté – vyplňuje se pouze volitelně
         taskStartDate.value = '';
         taskDueDate.value = '';
         selectedPeople = [];
@@ -1538,7 +1536,10 @@
       taskList.innerHTML = '';
 
       let displayTasks = rawTasks;
-      if (currentFilter === 'my') {
+      const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
+
+      // Běžný uživatel má vždy filtr 'my', admin se může přepínat
+      if (!isAdmin || currentFilter === 'my') {
         if (currentUser) {
           displayTasks = rawTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
         } else {
@@ -1547,7 +1548,7 @@
       }
 
       if (displayTasks.length === 0) {
-        emptyMsg.textContent = currentFilter === 'my' 
+        emptyMsg.textContent = (!isAdmin || currentFilter === 'my')
           ? (currentUser ? 'Nemáš přiřazené žádné úkoly.' : 'Pro zobrazení svých úkolů se přihlas.')
           : 'Žádné úkoly k zobrazení.';
         emptyMsg.style.display = 'block';
@@ -1555,7 +1556,6 @@
       }
 
       emptyMsg.style.display = 'none';
-      const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
       displayTasks.forEach((task) => {
         const li = document.createElement('li');
