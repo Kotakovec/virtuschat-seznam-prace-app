@@ -6,8 +6,9 @@
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>VirtusChat</title>
+  <title>VirtusChat Portál</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
     :root {
       --bg-color: #0b0f19;
@@ -40,7 +41,7 @@
       flex-direction: column;
       align-items: center;
       padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
       user-select: none;
     }
 
@@ -59,13 +60,22 @@
       z-index: 30;
     }
 
-    /* Vlevo: jen název */
     .brand-left {
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: cover;
     }
 
     .brand-title {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -78,43 +88,10 @@
       color: var(--text-muted);
     }
 
-    /* Vpravo: Přepínač pohledu pro adminy a kalendář */
     .header-right {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    /* Přepínač pro Adminy */
-    .admin-filter-toggle {
-      background-color: #0b1329;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2px;
-      display: none; /* zobrazeno jen pro adminy */
-      align-items: center;
-      gap: 2px;
-    }
-
-    .toggle-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 5px 9px;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .toggle-btn.active {
-      background-color: var(--primary);
-      color: white;
-      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
     }
 
     .btn-cal {
@@ -135,7 +112,7 @@
       background-color: #334155;
     }
 
-    /* Červený notifikační pás */
+    /* Červený notifikační pás pod hlavičkou */
     .alert-strip {
       width: 100%;
       background: linear-gradient(90deg, #b91c1c, #dc2626);
@@ -338,8 +315,8 @@
       position: fixed;
       bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       left: 20px;
-      width: 60px;
-      height: 60px;
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       background-color: var(--primary);
       color: white;
@@ -352,6 +329,43 @@
       line-height: 0;
       padding: 0;
       border: 2px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Plovoucí přepínač pro Adminy vpravo dole (ochrana proti Dynamic Islandu nahoře) */
+    .admin-filter-toggle {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      right: 20px;
+      background-color: #151d30;
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      padding: 3px;
+      display: none;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+      z-index: 50;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toggle-btn.active {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
     }
 
     /* Overlay */
@@ -671,26 +685,21 @@
 </head>
 <body>
 
-  <!-- Horní lišta -->
+  <!-- Horní lišta: Logo + VirtusChat Portál -->
   <header>
     <div class="brand-left" id="brand-menu-btn" title="Otevřít profil / přihlášení">
+      <img src="logo.png" alt="Logo" class="app-logo" onerror="this.style.display='none'">
       <div class="brand-title">
-        VirtusChat <span class="arrow">▼</span>
+        VirtusChat Portál <span class="arrow">▼</span>
       </div>
     </div>
     
     <div class="header-right">
-      <!-- Přepínač pro Adminy (zobrazen jen po přihlášení admina) -->
-      <div class="admin-filter-toggle" id="admin-cal-toggle">
-        <button class="toggle-btn active" id="btn-toggle-all" title="Zobrazit úkoly všech v kalendáři">🌐 Vše</button>
-        <button class="toggle-btn" id="btn-toggle-mine" title="Zobrazit jen moje úkoly v kalendáři">👤 Moje</button>
-      </div>
-
       <button class="btn-cal" id="btn-open-calendar" title="Kalendář úkolů">📅</button>
     </div>
   </header>
 
-  <!-- Červený notifikační pás -->
+  <!-- Červený notifikační pás pod hlavičkou -->
   <div class="alert-strip" id="alert-strip" style="display: none;">
     <span id="alert-strip-text">Načítám úkoly...</span>
     <span id="alert-strip-badge" style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;"></span>
@@ -704,6 +713,12 @@
 
   <!-- Tlačítko + vlevo dole pro adminy -->
   <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
+
+  <!-- Plovoucí přepínač vpravo dole (pro Adminy) -->
+  <div class="admin-filter-toggle" id="admin-cal-toggle">
+    <button class="toggle-btn active" id="btn-toggle-all" title="Všechny úkoly v kalendáři">🌐 Vše</button>
+    <button class="toggle-btn" id="btn-toggle-mine" title="Jen moje úkoly v kalendáři">👤 Moje</button>
+  </div>
 
   <div class="overlay" id="overlay"></div>
 
@@ -823,9 +838,7 @@
     let editingTaskId = null;
     let editingTaskColor = null;
 
-    // Přepínač admina: 'all' = všechny tečky v kalendáři, 'mine' = jen jeho
     let adminCalFilter = 'all';
-
     let calCurrentDate = new Date();
 
     const brandMenuBtn = document.getElementById('brand-menu-btn');
@@ -926,7 +939,6 @@
       renderFilteredTasks();
     }
 
-    // Tlačítka přepínání filtru pro adminy
     btnToggleAll.addEventListener('click', () => {
       adminCalFilter = 'all';
       btnToggleAll.classList.add('active');
@@ -1170,6 +1182,14 @@
       const tasks = Object.entries(allRawTasks).map(([id, task]) => ({ id, ...task }));
       tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
+      // 1. Úkoly přiřazené čistě PŘIHLÁŠENÉMU UŽIVATELI (pro notifikační pás)
+      const myAssignedTasks = tasks.filter(task => {
+        if (!currentUser) return false;
+        const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
+        return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
+      });
+
+      // 2. Úkoly viditelné v seznamu (Admin vidí vše, User jen své)
       const visibleTasks = tasks.filter(task => {
         if (!currentUser) return false;
         if (isAdmin()) return true;
@@ -1177,9 +1197,10 @@
         return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
       });
 
+      // ČERVENÝ NOTIFIKAČNÍ PÁS: Počítá POUZE úkoly přihlášeného uživatele!
       if (currentUser) {
         alertStrip.style.display = 'flex';
-        const uncompleted = visibleTasks.filter(t => !t.completed);
+        const uncompleted = myAssignedTasks.filter(t => !t.completed);
         const withDueDate = uncompleted.filter(t => t.dueDate);
         const now = new Date();
         const overdue = withDueDate.filter(t => new Date(t.dueDate) < now);
@@ -1200,7 +1221,7 @@
       }
 
       if (!currentUser) {
-        emptyMsg.textContent = 'Pro zobrazení úkolů se přihlas vlevo nahoře klepnutím na VirtusChat.';
+        emptyMsg.textContent = 'Pro zobrazení úkolů se přihlas vlevo nahoře klepnutím na VirtusChat Portál.';
         emptyMsg.style.display = 'block';
         return;
       }
@@ -1286,7 +1307,7 @@
       });
     }
 
-    // ================= KALENDÁŘ S PŘEPÍNAČEM PRO ADMINY =================
+    // ================= KALENDÁŘ =================
     btnOpenCalendar.addEventListener('click', () => {
       calCurrentDate = new Date();
       renderCalendar();
@@ -1336,22 +1357,18 @@
         calGrid.appendChild(emptyCell);
       }
 
-      // Filtrování úkolů pro kalendář
       const tasks = Object.values(allRawTasks).filter(task => {
         if (!currentUser) return false;
         
-        // Pokud je Admin: záleží na nastavení přepínače (Vše vs Moje)
         if (isAdmin()) {
           if (adminCalFilter === 'all') {
-            return true; // Vidí úkoly celého týmu
+            return true;
           } else {
-            // Vidí jen úkoly, kde je přiřazen
             const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
             return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
           }
         }
 
-        // Běžný uživatel vidí vždy jen své
         const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
         return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
       });
@@ -1367,7 +1384,6 @@
           cell.classList.add('today');
         }
 
-        // Zda den spadá do rozmezí úkolu
         const dayTasks = tasks.filter(t => {
           const s = t.startDate ? t.startDate.slice(0, 10) : null;
           const d = t.dueDate ? t.dueDate.slice(0, 10) : null;
@@ -1387,7 +1403,6 @@
         numSpan.textContent = day;
         cell.appendChild(numSpan);
 
-        // Vykreslení teček v odpovídajících barvách úkolů
         if (dayTasks.length > 0) {
           const dotsContainer = document.createElement('div');
           dotsContainer.className = 'cal-dots-container';
