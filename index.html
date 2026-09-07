@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>VirtusChat To-Do</title>
+  <title>VirtusChat</title>
   <link rel="manifest" href="manifest.json">
   <style>
     :root {
@@ -18,6 +18,7 @@
       --primary: #3b82f6;
       --primary-hover: #2563eb;
       --danger: #ef4444;
+      --danger-hover: #dc2626;
       --border: #23314e;
       --accent: #10b981;
     }
@@ -42,13 +43,14 @@
       user-select: none;
     }
 
+    /* Horní lišta */
     header {
       width: 100%;
       position: sticky;
       top: 0;
-      background: rgba(11, 15, 25, 0.9);
+      background: rgba(11, 15, 25, 0.95);
       backdrop-filter: blur(10px);
-      padding: 14px 16px;
+      padding: 14px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -56,37 +58,30 @@
       z-index: 30;
     }
 
-    header h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.3px;
+    /* Klikací logo/název */
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title:active {
+      opacity: 0.75;
+    }
+
+    .brand-title span.arrow {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
     .auth-section {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .auth-user-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      background: #080c14;
-      padding: 5px 10px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-    }
-
-    .role-tag {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      background: var(--primary);
-      color: white;
-      padding: 2px 5px;
-      border-radius: 4px;
-      font-weight: 700;
     }
 
     button {
@@ -115,6 +110,12 @@
       color: var(--text-main);
     }
 
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    /* Seznam úkolů */
     .container {
       width: 100%;
       padding: 14px 12px;
@@ -140,7 +141,7 @@
     }
 
     .task-item.completed {
-      opacity: 0.6;
+      opacity: 0.55;
     }
 
     .task-item.completed .task-text {
@@ -162,6 +163,11 @@
       cursor: pointer;
       accent-color: var(--accent);
       flex-shrink: 0;
+    }
+
+    .task-left input[type="checkbox"]:disabled {
+      cursor: not-allowed;
+      opacity: 0.35;
     }
 
     .task-details {
@@ -195,14 +201,25 @@
       gap: 4px;
     }
 
-    .btn-delete {
+    /* Admin akce v úkolu */
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .btn-icon {
       background: none;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 1.3rem;
-      padding: 6px 10px;
-      flex-shrink: 0;
+      font-size: 1.15rem;
+      padding: 6px 8px;
+    }
+
+    .btn-icon:active {
+      color: var(--text-main);
     }
 
     .btn-delete:active {
@@ -216,6 +233,7 @@
       font-size: 0.9rem;
     }
 
+    /* Plovoucí tlačítko vlevo dole pro adminy */
     .fab-btn {
       position: fixed;
       bottom: calc(20px + env(safe-area-inset-bottom, 0px));
@@ -236,6 +254,7 @@
       border: 2px solid rgba(255, 255, 255, 0.15);
     }
 
+    /* Overlay */
     .overlay {
       position: fixed;
       inset: 0;
@@ -252,7 +271,8 @@
       opacity: 1;
     }
 
-    .login-modal {
+    /* Modály */
+    .modal {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -262,20 +282,20 @@
       border-radius: 16px;
       padding: 22px;
       width: calc(100% - 40px);
-      max-width: 360px;
+      max-width: 380px;
       z-index: 101;
       display: none;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
     }
 
-    .login-modal.active {
+    .modal.active {
       display: flex;
     }
 
-    .login-modal h2 {
-      font-size: 1.15rem;
+    .modal h2 {
+      font-size: 1.2rem;
     }
 
     input[type="text"], input[type="password"] {
@@ -293,13 +313,50 @@
       border-color: var(--primary);
     }
 
-    .login-modal-actions {
+    .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
+    /* Uživatelské menu (klik na VirtusChat) */
+    .user-info-box {
+      background-color: #0b1329;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .role-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      background: var(--primary);
+      color: white;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .password-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .password-section label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Mobilní Bottom Sheet (Vytvoření / Editace úkolu) */
     .bottom-sheet {
       position: fixed;
       left: 0;
@@ -406,35 +463,68 @@
 </head>
 <body>
 
+  <!-- Horní lišta: jen VirtusChat -->
   <header>
-    <h1>VirtusChat To-Do</h1>
+    <div class="brand-title" id="brand-menu-btn" title="Uživatelské menu">
+      VirtusChat <span class="arrow">▼</span>
+    </div>
     <div class="auth-section" id="auth-section">
       <button class="btn-primary" id="btn-open-login">Přihlásit</button>
     </div>
   </header>
 
+  <!-- Seznam úkolů -->
   <div class="container">
     <ul class="task-list" id="task-list"></ul>
     <div class="empty-msg" id="empty-msg">Načítám úkoly...</div>
   </div>
 
+  <!-- Tlačítko + vlevo dole (jen pro adminy) -->
   <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
+  <!-- Pozadí modálů -->
   <div class="overlay" id="overlay"></div>
 
-  <div class="login-modal" id="login-modal">
+  <!-- Přihlašovací Modal -->
+  <div class="modal" id="login-modal">
     <h2>Přihlášení</h2>
     <input type="text" id="login-username" placeholder="Uživatel (jakub, daniel...)" autocomplete="username" autocapitalize="none">
     <input type="password" id="login-password" placeholder="Heslo" autocomplete="current-password">
-    <div class="login-modal-actions">
+    <div class="modal-actions">
       <button class="btn-secondary" id="btn-close-login">Zrušit</button>
       <button class="btn-primary" id="btn-submit-login">Přihlásit</button>
     </div>
   </div>
 
+  <!-- Uživatelské Menu Modal (po kliknutí na VirtusChat) -->
+  <div class="modal" id="user-menu-modal">
+    <h2>Tvůj profil</h2>
+    
+    <div class="user-info-box">
+      <div>
+        <strong id="menu-user-name" style="font-size: 1.05rem;">Uživatel</strong>
+        <div id="menu-user-id" style="font-size: 0.8rem; color: var(--text-muted);">@id</div>
+      </div>
+      <span class="role-tag" id="menu-user-role">Role</span>
+    </div>
+
+    <!-- Změna hesla -->
+    <div class="password-section">
+      <label for="input-new-password">Změna hesla</label>
+      <input type="password" id="input-new-password" placeholder="Nové heslo">
+      <button class="btn-secondary" id="btn-change-password">Uložit nové heslo</button>
+    </div>
+
+    <div style="border-top: 1px solid var(--border); padding-top: 12px; display: flex; justify-content: space-between; gap: 10px;">
+      <button class="btn-danger" id="btn-logout" style="flex: 1;">Odhlásit se</button>
+      <button class="btn-secondary" id="btn-close-user-menu">Zavřít</button>
+    </div>
+  </div>
+
+  <!-- Vysouvací panel pro vytvoření / editaci úkolu -->
   <div class="bottom-sheet" id="bottom-sheet">
     <div class="sheet-handle"></div>
-    <h2>Nový úkol</h2>
+    <h2 id="sheet-title">Nový úkol</h2>
     <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
 
     <div class="sheet-section-title">Přiřadit lidi (klepnutím vyber):</div>
@@ -442,7 +532,7 @@
 
     <div class="sheet-actions">
       <button class="btn-secondary" id="btn-close-sheet">Zavřít</button>
-      <button class="btn-primary" id="btn-confirm-add-task">Přidat úkol</button>
+      <button class="btn-primary" id="btn-confirm-task">Uložit</button>
     </div>
   </div>
 
@@ -462,7 +552,6 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    // Explicitní předání databaseURL pro garanci správné evropské instance
     const db = getDatabase(app, firebaseConfig.databaseURL);
 
     const todosRef = ref(db, 'todos');
@@ -471,7 +560,10 @@
     let currentUser = JSON.parse(localStorage.getItem('pwa_logged_user')) || null;
     let allUsers = {};
     let selectedPeople = [];
+    let editingTaskId = null; // Pokud editujeme, držíme ID úkolu
 
+    // DOM elementy
+    const brandMenuBtn = document.getElementById('brand-menu-btn');
     const authSection = document.getElementById('auth-section');
     const btnOpenLogin = document.getElementById('btn-open-login');
     const btnCloseLogin = document.getElementById('btn-close-login');
@@ -481,27 +573,41 @@
     const loginUsername = document.getElementById('login-username');
     const loginPassword = document.getElementById('login-password');
 
+    // Menu uživatele
+    const userMenuModal = document.getElementById('user-menu-modal');
+    const menuUserName = document.getElementById('menu-user-name');
+    const menuUserId = document.getElementById('menu-user-id');
+    const menuUserRole = document.getElementById('menu-user-role');
+    const inputNewPassword = document.getElementById('input-new-password');
+    const btnChangePassword = document.getElementById('btn-change-password');
+    const btnLogout = document.getElementById('btn-logout');
+    const btnCloseUserMenu = document.getElementById('btn-close-user-menu');
+
+    // Bottom Sheet (Úkoly)
     const fabAdd = document.getElementById('fab-add');
     const bottomSheet = document.getElementById('bottom-sheet');
+    const sheetTitle = document.getElementById('sheet-title');
     const btnCloseSheet = document.getElementById('btn-close-sheet');
-    const btnConfirmAddTask = document.getElementById('btn-confirm-add-task');
+    const btnConfirmTask = document.getElementById('btn-confirm-task');
     const taskInput = document.getElementById('task-input');
     const peopleSelector = document.getElementById('people-selector');
     const taskList = document.getElementById('task-list');
     const emptyMsg = document.getElementById('empty-msg');
 
+    function isAdmin() {
+      return currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
+    }
+
     function updateAuthUI() {
       if (currentUser) {
         authSection.innerHTML = `
-          <div class="auth-user-badge">
-            <span>👤 ${currentUser.name}</span>
-            <span class="role-tag">${currentUser.role}</span>
-          </div>
-          <button class="btn-secondary" id="btn-logout" style="padding: 5px 8px; font-size: 0.75rem;">Odhlásit</button>
+          <button class="btn-secondary" id="btn-quick-profile" style="padding: 6px 12px; font-size: 0.8rem;">
+            👤 ${currentUser.name}
+          </button>
         `;
-        document.getElementById('btn-logout').addEventListener('click', handleLogout);
+        document.getElementById('btn-quick-profile').addEventListener('click', openUserMenu);
 
-        if (currentUser.role && currentUser.role.toLowerCase() === 'admin') {
+        if (isAdmin()) {
           fabAdd.style.display = 'flex';
         } else {
           fabAdd.style.display = 'none';
@@ -513,6 +619,59 @@
       }
     }
 
+    // Kliknutí na "VirtusChat" otevře menu účtu
+    brandMenuBtn.addEventListener('click', () => {
+      if (currentUser) {
+        openUserMenu();
+      } else {
+        openLoginModal();
+      }
+    });
+
+    function openUserMenu() {
+      menuUserName.textContent = currentUser.name;
+      menuUserId.textContent = `@${currentUser.id}`;
+      menuUserRole.textContent = currentUser.role;
+      inputNewPassword.value = '';
+      userMenuModal.classList.add('active');
+      overlay.classList.add('active');
+    }
+
+    function closeUserMenu() {
+      userMenuModal.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    btnCloseUserMenu.addEventListener('click', closeUserMenu);
+
+    // Změna hesla přímo v RTDB
+    btnChangePassword.addEventListener('click', async () => {
+      const newPass = inputNewPassword.value.trim();
+      if (!newPass) {
+        alert('Zadej nové heslo.');
+        return;
+      }
+
+      try {
+        await update(ref(db, `users/${currentUser.id}`), {
+          password: newPass
+        });
+        alert('Heslo bylo úspěšně změněno!');
+        inputNewPassword.value = '';
+        closeUserMenu();
+      } catch (err) {
+        alert('Chyba při změně hesla: ' + err.message);
+      }
+    });
+
+    btnLogout.addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('pwa_logged_user');
+      closeUserMenu();
+      updateAuthUI();
+    });
+
+    // Login modal
     function openLoginModal() {
       loginModal.classList.add('active');
       overlay.classList.add('active');
@@ -526,7 +685,7 @@
       overlay.classList.remove('active');
     }
 
-    btnOpenLogin.addEventListener('click', openLoginModal);
+    btnOpenLogin?.addEventListener('click', openLoginModal);
     btnCloseLogin.addEventListener('click', closeLoginModal);
 
     btnSubmitLogin.addEventListener('click', async () => {
@@ -539,12 +698,12 @@
       }
 
       try {
-        const userPath = `users/${usernameKey}`;
-        const snapshot = await get(ref(db, userPath));
-        
+        const snapshot = await get(ref(db, `users/${usernameKey}`));
         if (snapshot.exists()) {
           const userData = snapshot.val();
-          if (userData.password === password) {
+          const dbPassword = String(userData.password !== undefined ? userData.password : '').trim();
+
+          if (dbPassword === password) {
             currentUser = {
               id: usernameKey,
               name: userData.name || usernameKey,
@@ -557,28 +716,17 @@
             alert('Nesprávné heslo.');
           }
         } else {
-          alert(`Uživatel "${usernameKey}" v databázi neexistuje.`);
+          alert('Uživatel s tímto jménem neexistuje.');
         }
       } catch (err) {
-        console.error("Firebase Error Detail:", err);
-        // Vypíše přesný důvod (Permission denied, Network offline, atd.)
-        alert('Chyba: ' + (err.code || err.message || JSON.stringify(err)));
+        alert('Chyba: ' + (err.code || err.message));
       }
     });
 
-    function handleLogout() {
-      currentUser = null;
-      localStorage.removeItem('pwa_logged_user');
-      updateAuthUI();
-      closeBottomSheet();
-    }
-
-    // Realtime poslech seznamu lidí
+    // Realtime poslech seznamu lidí pro avatary
     onValue(usersRef, (snapshot) => {
       allUsers = snapshot.val() || {};
       renderPeopleSelector();
-    }, (error) => {
-      console.error("Chyba čtení users:", error);
     });
 
     function renderPeopleSelector() {
@@ -610,9 +758,26 @@
       });
     }
 
-    function openBottomSheet() {
+    // Otevření panelu pro nový úkol
+    function openCreateSheet() {
+      editingTaskId = null;
+      sheetTitle.textContent = 'Nový úkol';
+      btnConfirmTask.textContent = 'Přidat úkol';
       selectedPeople = [];
       taskInput.value = '';
+      renderPeopleSelector();
+      bottomSheet.classList.add('active');
+      overlay.classList.add('active');
+      taskInput.focus();
+    }
+
+    // Otevření panelu pro editaci úkolu (Admin)
+    function openEditSheet(task) {
+      editingTaskId = task.id;
+      sheetTitle.textContent = 'Upravit úkol';
+      btnConfirmTask.textContent = 'Uložit změny';
+      taskInput.value = task.text || '';
+      selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
       renderPeopleSelector();
       bottomSheet.classList.add('active');
       overlay.classList.add('active');
@@ -622,36 +787,52 @@
     function closeBottomSheet() {
       bottomSheet.classList.remove('active');
       overlay.classList.remove('active');
+      editingTaskId = null;
     }
 
-    fabAdd.addEventListener('click', openBottomSheet);
+    fabAdd.addEventListener('click', openCreateSheet);
     btnCloseSheet.addEventListener('click', closeBottomSheet);
     overlay.addEventListener('click', () => {
       closeLoginModal();
+      closeUserMenu();
       closeBottomSheet();
     });
 
-    btnConfirmAddTask.addEventListener('click', () => {
+    // Uložení úkolu (vytvoření nebo přepsání)
+    btnConfirmTask.addEventListener('click', () => {
       const text = taskInput.value.trim();
       if (!text) {
         alert('Zadej text úkolu.');
         return;
       }
 
-      push(todosRef, {
-        text: text,
-        completed: false,
-        assignees: selectedPeople,
-        createdAt: Date.now(),
-        createdBy: currentUser ? currentUser.name : 'Neznámý'
-      }).then(() => {
-        closeBottomSheet();
-      }).catch(err => {
-        alert('Chyba při ukládání: ' + err.message);
-      });
+      if (editingTaskId) {
+        // Editace stávajícího
+        update(ref(db, `todos/${editingTaskId}`), {
+          text: text,
+          assignees: selectedPeople
+        }).then(() => {
+          closeBottomSheet();
+        }).catch(err => {
+          alert('Chyba: ' + err.message);
+        });
+      } else {
+        // Vytvoření nového
+        push(todosRef, {
+          text: text,
+          completed: false,
+          assignees: selectedPeople,
+          createdAt: Date.now(),
+          createdBy: currentUser ? currentUser.name : 'Neznámý'
+        }).then(() => {
+          closeBottomSheet();
+        }).catch(err => {
+          alert('Chyba: ' + err.message);
+        });
+      }
     });
 
-    // Realtime poslech úkolů
+    // Realtime poslech seznamu úkolů
     onValue(todosRef, (snapshot) => {
       taskList.innerHTML = '';
       const data = snapshot.val();
@@ -671,38 +852,66 @@
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
+        // Ikonky přiřazených lidí
         let assigneesHtml = '';
-        if (task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0) {
-          assigneesHtml = task.assignees.map(name => `
+        const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
+        if (taskAssignees.length > 0) {
+          assigneesHtml = taskAssignees.map(name => `
             <span class="assignee-chip">👤 ${name}</span>
           `).join('');
         }
 
-        const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
-        const deleteButtonHtml = isAdmin
-          ? `<button class="btn-delete" title="Smazat úkol" data-id="${task.id}">✕</button>`
-          : '';
+        // KONTROLA PRÁVA NA ODŠKRTNUTÍ:
+        // Může jen ten, kdo je přiřazený (podle jména nebo ID), NEBO admin
+        let canToggle = false;
+        if (currentUser) {
+          if (isAdmin()) {
+            canToggle = true;
+          } else if (taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id)) {
+            canToggle = true;
+          }
+        }
+
+        // Tlačítka pro Admina: Edit (tužka) + Delete (křížek)
+        let adminButtonsHtml = '';
+        if (isAdmin()) {
+          adminButtonsHtml = `
+            <div class="task-actions">
+              <button class="btn-icon btn-edit" title="Upravit úkol">✏️</button>
+              <button class="btn-icon btn-delete" title="Smazat úkol">✕</button>
+            </div>
+          `;
+        }
 
         li.innerHTML = `
           <div class="task-left">
-            <input type="checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} ${canToggle ? '' : 'disabled'} title="${canToggle ? 'Označit jako hotové' : 'Tento úkol není přiřazen tobě'}">
             <div class="task-details">
               <span class="task-text">${task.text}</span>
               ${assigneesHtml ? `<div class="assignees-container">${assigneesHtml}</div>` : ''}
             </div>
           </div>
-          ${deleteButtonHtml}
+          ${adminButtonsHtml}
         `;
 
-        li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-          update(ref(db, `todos/${task.id}`), {
-            completed: e.target.checked
+        // Event odškrtnutí
+        if (canToggle) {
+          li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+            update(ref(db, `todos/${task.id}`), {
+              completed: e.target.checked
+            });
           });
-        });
+        }
 
-        if (isAdmin) {
+        // Admin eventy
+        if (isAdmin()) {
+          li.querySelector('.btn-edit').addEventListener('click', () => {
+            openEditSheet(task);
+          });
           li.querySelector('.btn-delete').addEventListener('click', () => {
-            remove(ref(db, `todos/${task.id}`));
+            if (confirm(`Opravdu smazat úkol: "${task.text}"?`)) {
+              remove(ref(db, `todos/${task.id}`));
+            }
           });
         }
 
@@ -712,6 +921,7 @@
       emptyMsg.textContent = 'Chyba načítání: ' + error.message;
     });
 
+    // PWA Service Worker s okamžitou aktualizací
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((registration) => {
