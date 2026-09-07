@@ -59,7 +59,6 @@
       z-index: 30;
     }
 
-    /* Vlevo: Logo a Profil */
     .brand-left {
       display: flex;
       align-items: center;
@@ -90,7 +89,6 @@
       color: #93c5fd;
     }
 
-    /* Vpravo: Kalendář */
     .header-right {
       display: flex;
       align-items: center;
@@ -114,7 +112,7 @@
       background-color: #334155;
     }
 
-    /* Červený notifikační pás pod hlavičkou */
+    /* Červený notifikační pás */
     .alert-strip {
       width: 100%;
       background: linear-gradient(90deg, #b91c1c, #dc2626);
@@ -129,13 +127,6 @@
       z-index: 25;
     }
 
-    .alert-strip span {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Společné prvky tlačítek */
     button {
       padding: 9px 14px;
       border-radius: 10px;
@@ -190,6 +181,7 @@
       justify-content: space-between;
       gap: 10px;
       transition: background 0.15s;
+      position: relative;
     }
 
     .task-item.completed {
@@ -204,8 +196,18 @@
     .task-left {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
+    }
+
+    /* Barevná tečka vlevo od úkolu */
+    .task-color-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 9px;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
     }
 
     .task-left input[type="checkbox"] {
@@ -235,7 +237,6 @@
       word-break: break-word;
     }
 
-    /* Informace o datu u úkolu */
     .task-meta {
       display: flex;
       flex-wrap: wrap;
@@ -433,7 +434,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* Spodní vysouvací panel (Úkoly) */
+    /* Spodní vysouvací panel */
     .bottom-sheet {
       position: fixed;
       left: 0;
@@ -554,7 +555,7 @@
       padding: 12px;
     }
 
-    /* Kalendář v modálu */
+    /* Kalendář s barevnými tečkami */
     .cal-header {
       display: flex;
       justify-content: space-between;
@@ -581,11 +582,16 @@
     }
 
     .cal-cell {
-      padding: 8px 0;
+      min-height: 44px;
+      padding: 4px 2px;
       border-radius: 8px;
       background: #0b1329;
       cursor: pointer;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 3px;
     }
 
     .cal-cell.empty {
@@ -598,25 +604,33 @@
     }
 
     .cal-cell.selected {
-      background-color: var(--primary) !important;
-      color: white;
-      font-weight: 700;
+      background-color: #1e3a8a !important;
+      border-color: #93c5fd;
     }
 
-    .cal-cell.has-task::after {
-      content: '';
-      position: absolute;
-      bottom: 3px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 5px;
-      height: 5px;
-      background-color: var(--danger);
+    .cal-day-num {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Kontejner na barevné tečky v kalendáři */
+    .cal-dots-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+      max-width: 32px;
+    }
+
+    .cal-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
+      flex-shrink: 0;
     }
 
     .cal-task-details {
-      max-height: 120px;
+      max-height: 140px;
       overflow-y: auto;
       border-top: 1px solid var(--border);
       padding-top: 10px;
@@ -628,15 +642,15 @@
 
     .cal-task-item {
       background: #0b1329;
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-radius: 6px;
-      border-left: 3px solid var(--primary);
+      border-left: 4px solid var(--primary);
     }
   </style>
 </head>
 <body>
 
-  <!-- Horní lišta: Vlevo VirtusChat + profil, Vpravo Kalendář -->
+  <!-- Horní lišta -->
   <header>
     <div class="brand-left" id="brand-menu-btn" title="Otevřít profil / přihlášení">
       <div class="brand-title">
@@ -649,22 +663,21 @@
     </div>
   </header>
 
-  <!-- Červený notifikační pás pod hlavičkou -->
+  <!-- Červený pás -->
   <div class="alert-strip" id="alert-strip" style="display: none;">
     <span id="alert-strip-text">Načítám úkoly...</span>
     <span id="alert-strip-badge" style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;"></span>
   </div>
 
-  <!-- Seznam úkolů -->
+  <!-- Úkoly -->
   <div class="container">
     <ul class="task-list" id="task-list"></ul>
     <div class="empty-msg" id="empty-msg">Načítám úkoly...</div>
   </div>
 
-  <!-- Plovoucí tlačítko vlevo dole (jen pro adminy) -->
+  <!-- Tlačítko + -->
   <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-  <!-- Pozadí overlay -->
   <div class="overlay" id="overlay"></div>
 
   <!-- Přihlašovací Modal -->
@@ -710,14 +723,14 @@
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div class="cal-task-details" id="cal-task-details">
-      <div style="color: var(--text-muted);">Klikni na označený den pro zobrazení úkolů.</div>
+      <div style="color: var(--text-muted);">Klikni na den pro zobrazení úkolů.</div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" id="btn-close-cal">Zavřít</button>
     </div>
   </div>
 
-  <!-- Vysouvací panel pro vytvoření / editaci úkolu (Admin) -->
+  <!-- Vytvoření / Editace úkolu -->
   <div class="bottom-sheet" id="bottom-sheet">
     <div class="sheet-handle"></div>
     <h2 id="sheet-title">Nový úkol</h2>
@@ -770,16 +783,29 @@
     const todosRef = ref(db, 'todos');
     const usersRef = ref(db, 'users');
 
+    // Paleta výrazných kontrastních barev pro úkoly
+    const TASK_COLORS = [
+      "#ef4444", // červená
+      "#f97316", // oranžová
+      "#eab308", // žlutá
+      "#10b981", // zelená
+      "#06b6d4", // azurová
+      "#3b82f6", // modrá
+      "#8b5cf6", // fialová
+      "#ec4899", // růžová
+      "#14b8a6", // tyrkysová
+      "#f43f5e"  // karmínová
+    ];
+
     let currentUser = JSON.parse(localStorage.getItem('pwa_logged_user')) || null;
     let allUsers = {};
     let allRawTasks = {};
     let selectedPeople = [];
     let editingTaskId = null;
+    let editingTaskColor = null;
 
-    // Kalendář stav
     let calCurrentDate = new Date();
 
-    // DOM elementy
     const brandMenuBtn = document.getElementById('brand-menu-btn');
     const headerUserBadge = document.getElementById('header-user-badge');
     const alertStrip = document.getElementById('alert-strip');
@@ -815,7 +841,6 @@
     const taskList = document.getElementById('task-list');
     const emptyMsg = document.getElementById('empty-msg');
 
-    // Kalendář DOM
     const btnOpenCalendar = document.getElementById('btn-open-calendar');
     const calendarModal = document.getElementById('calendar-modal');
     const btnCloseCal = document.getElementById('btn-close-cal');
@@ -837,6 +862,33 @@
       return `${year}-${month}-${day}`;
     }
 
+    // Automatický výběr barvy, která se ještě nepoužívá
+    function getNextTaskColor() {
+      const existingColors = Object.values(allRawTasks).map(t => t.color).filter(Boolean);
+      
+      // Hledáme barvu z palety, která ještě není v úkolech
+      for (const col of TASK_COLORS) {
+        if (!existingColors.includes(col)) {
+          return col;
+        }
+      }
+
+      // Pokud jsou všechny použité, vybereme tu, která se opakuje nejméně
+      const counts = {};
+      TASK_COLORS.forEach(c => counts[c] = 0);
+      existingColors.forEach(c => { if (counts[c] !== undefined) counts[c]++; });
+
+      let minColor = TASK_COLORS[0];
+      let minCount = Infinity;
+      TASK_COLORS.forEach(c => {
+        if (counts[c] < minCount) {
+          minCount = counts[c];
+          minColor = c;
+        }
+      });
+      return minColor;
+    }
+
     function updateAuthUI() {
       if (currentUser) {
         headerUserBadge.innerHTML = `<span class="user-pill">👤 ${currentUser.name}</span>`;
@@ -852,13 +904,9 @@
       renderFilteredTasks();
     }
 
-    // Kliknutí vlevo na VirtusChat / Profil
     brandMenuBtn.addEventListener('click', () => {
-      if (currentUser) {
-        openUserMenu();
-      } else {
-        openLoginModal();
-      }
+      if (currentUser) openUserMenu();
+      else openLoginModal();
     });
 
     function openLoginModal() {
@@ -951,7 +999,6 @@
       updateAuthUI();
     });
 
-    // Realtime poslech seznamu lidí pro výběr
     onValue(usersRef, (snapshot) => {
       allUsers = snapshot.val() || {};
       renderPeopleSelector();
@@ -986,9 +1033,9 @@
       });
     }
 
-    // Otevření popupu pro nový úkol
     function openCreateSheet() {
       editingTaskId = null;
+      editingTaskColor = null;
       sheetTitle.textContent = 'Nový úkol';
       btnConfirmTask.textContent = 'Přidat úkol';
       selectedPeople = [];
@@ -1001,9 +1048,9 @@
       taskInput.focus();
     }
 
-    // Editace úkolu pro Adminy
     function openEditSheet(task) {
       editingTaskId = task.id;
+      editingTaskColor = task.color || getNextTaskColor();
       sheetTitle.textContent = 'Upravit úkol';
       btnConfirmTask.textContent = 'Uložit změny';
       taskInput.value = task.text || '';
@@ -1020,6 +1067,7 @@
       bottomSheet.classList.remove('active');
       overlay.classList.remove('active');
       editingTaskId = null;
+      editingTaskColor = null;
     }
 
     fabAdd.addEventListener('click', openCreateSheet);
@@ -1032,7 +1080,6 @@
       closeCalendarModal();
     });
 
-    // Uložení úkolu
     btnConfirmTask.addEventListener('click', () => {
       const text = taskInput.value.trim();
       if (!text) {
@@ -1048,41 +1095,40 @@
           text: text,
           startDate: sDate,
           dueDate: dDate,
-          assignees: selectedPeople
-        }).then(() => {
-          closeBottomSheet();
-        }).catch(err => alert('Chyba: ' + err.message));
+          assignees: selectedPeople,
+          color: editingTaskColor || getNextTaskColor()
+        }).then(() => closeBottomSheet()).catch(err => alert('Chyba: ' + err.message));
       } else {
+        const assignedColor = getNextTaskColor();
         push(todosRef, {
           text: text,
           completed: false,
           startDate: sDate,
           dueDate: dDate,
+          color: assignedColor,
           assignees: selectedPeople,
           createdAt: Date.now(),
           createdBy: currentUser ? currentUser.name : 'Neznámý'
-        }).then(() => {
-          closeBottomSheet();
-        }).catch(err => alert('Chyba: ' + err.message));
+        }).then(() => closeBottomSheet()).catch(err => alert('Chyba: ' + err.message));
       }
     });
 
-    // Poslech úkolů z RTDB
     onValue(todosRef, (snapshot) => {
       allRawTasks = snapshot.val() || {};
       renderFilteredTasks();
+      if (calendarModal.classList.contains('active')) {
+        renderCalendar();
+      }
     }, (error) => {
       emptyMsg.textContent = 'Chyba načítání: ' + error.message;
     });
 
-    // Vykreslení úkolů podle role (Admin vs User) + Červený notifikační pás
     function renderFilteredTasks() {
       taskList.innerHTML = '';
       
       const tasks = Object.entries(allRawTasks).map(([id, task]) => ({ id, ...task }));
       tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-      // Filtrování: Admin vidí vše, User vidí jen své úkoly
       const visibleTasks = tasks.filter(task => {
         if (!currentUser) return false;
         if (isAdmin()) return true;
@@ -1090,13 +1136,11 @@
         return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
       });
 
-      // Výpočet pro ČERVENÝ NOTIFIKAČNÍ PÁS
+      // Červený pás
       if (currentUser) {
         alertStrip.style.display = 'flex';
         const uncompleted = visibleTasks.filter(t => !t.completed);
         const withDueDate = uncompleted.filter(t => t.dueDate);
-        
-        // Zkontrolujeme zpožděné úkoly
         const now = new Date();
         const overdue = withDueDate.filter(t => new Date(t.dueDate) < now);
 
@@ -1133,7 +1177,8 @@
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
-        // Lidé
+        const taskColor = task.color || '#3b82f6';
+
         let assigneesHtml = '';
         const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
         if (taskAssignees.length > 0) {
@@ -1142,7 +1187,6 @@
           `).join('');
         }
 
-        // Datum Od - Do
         let dateHtml = '';
         if (task.startDate) {
           const sD = new Date(task.startDate);
@@ -1155,13 +1199,11 @@
           dateHtml += `<span class="date-badge due ${isExpired ? 'expired' : ''}">Do: ${dueFormat}${isExpired ? ' (Po termínu!)' : ''}</span>`;
         }
 
-        // Kdo může odškrtnout: přiřazený člověk nebo admin
         let canToggle = false;
         if (isAdmin() || taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id)) {
           canToggle = true;
         }
 
-        // Akce pro admina
         let adminButtonsHtml = '';
         if (isAdmin()) {
           adminButtonsHtml = `
@@ -1174,6 +1216,7 @@
 
         li.innerHTML = `
           <div class="task-left">
+            <div class="task-color-indicator" style="background-color: ${taskColor};" title="Barva úkolu v kalendáři"></div>
             <input type="checkbox" ${task.completed ? 'checked' : ''} ${canToggle ? '' : 'disabled'} title="${canToggle ? 'Označit hotovo' : 'Nemáš oprávnění k tomuto úkolu'}">
             <div class="task-details">
               <span class="task-text">${task.text}</span>
@@ -1203,7 +1246,7 @@
       });
     }
 
-    // ================= KALENDÁŘ LOGIKA =================
+    // ================= KALENDÁŘ S CELÝM ROZMEZÍM DNŮ =================
     btnOpenCalendar.addEventListener('click', () => {
       calCurrentDate = new Date();
       renderCalendar();
@@ -1236,7 +1279,6 @@
       const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
       calMonthTitle.textContent = `${monthNames[month]} ${year}`;
 
-      // Dny v týdnu
       const dayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
       dayNames.forEach(d => {
         const el = document.createElement('div');
@@ -1245,17 +1287,15 @@
         calGrid.appendChild(el);
       });
 
-      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Pondělí = 0
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
       const totalDays = new Date(year, month + 1, 0).getDate();
 
-      // Prázdné buňky před začátkem měsíce
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'cal-cell empty';
         calGrid.appendChild(emptyCell);
       }
 
-      // Úkoly viditelné pro daného uživatele
       const tasks = Object.values(allRawTasks).filter(task => {
         if (!currentUser) return false;
         if (isAdmin()) return true;
@@ -1268,29 +1308,55 @@
       for (let day = 1; day <= totalDays; day++) {
         const cell = document.createElement('div');
         cell.className = 'cal-cell';
-        cell.textContent = day;
 
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         if (dateStr === todayStr) {
           cell.classList.add('today');
         }
 
-        // Najít úkoly pro tento den (podle startDate nebo dueDate)
+        // KONTROLA ROZMEZÍ DNŮ: Spadá tento den mezi startDate a dueDate?
         const dayTasks = tasks.filter(t => {
           const s = t.startDate ? t.startDate.slice(0, 10) : null;
           const d = t.dueDate ? t.dueDate.slice(0, 10) : null;
-          return s === dateStr || d === dateStr;
+
+          if (s && d) {
+            // Má obojí: platí pro všechny dny od s do d včetně
+            return dateStr >= s && dateStr <= d;
+          } else if (s && !d) {
+            // Má jen start: platí v ten den
+            return dateStr === s;
+          } else if (!s && d) {
+            // Má jen konec: platí v ten den
+            return dateStr === d;
+          }
+          return false;
         });
 
+        // Vykreslení čísla dne
+        const numSpan = document.createElement('span');
+        numSpan.className = 'cal-day-num';
+        numSpan.textContent = day;
+        cell.appendChild(numSpan);
+
+        // Vykreslení barevných teček pro každý úkol v daný den
         if (dayTasks.length > 0) {
-          cell.classList.add('has-task');
+          const dotsContainer = document.createElement('div');
+          dotsContainer.className = 'cal-dots-container';
+
+          dayTasks.forEach(t => {
+            const dot = document.createElement('div');
+            dot.className = 'cal-dot';
+            dot.style.backgroundColor = t.color || '#3b82f6';
+            dotsContainer.appendChild(dot);
+          });
+
+          cell.appendChild(dotsContainer);
         }
 
         cell.addEventListener('click', () => {
           document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
           cell.classList.add('selected');
 
-          // Vypsat úkoly
           calTaskDetails.innerHTML = '';
           if (dayTasks.length === 0) {
             calTaskDetails.innerHTML = `<div style="color: var(--text-muted);">Žádné úkoly pro ${day}. ${month + 1}. ${year}</div>`;
@@ -1298,7 +1364,19 @@
             dayTasks.forEach(t => {
               const item = document.createElement('div');
               item.className = 'cal-task-item';
-              item.innerHTML = `<strong>${t.completed ? '✓ ' : ''}${t.text}</strong><br><small style="color: var(--text-muted);">${t.dueDate ? 'Termín: ' + t.dueDate.replace('T', ' ') : 'Bez termínu'}</small>`;
+              item.style.borderLeftColor = t.color || '#3b82f6';
+              
+              let rangeTxt = '';
+              if (t.startDate) rangeTxt += `Od: ${t.startDate}`;
+              if (t.dueDate) rangeTxt += ` | Do: ${t.dueDate.replace('T', ' ')}`;
+
+              item.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${t.color || '#3b82f6'}; display: inline-block;"></span>
+                  <strong>${t.completed ? '✓ ' : ''}${t.text}</strong>
+                </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 3px;">${rangeTxt || 'Bez termínu'}</small>
+              `;
               calTaskDetails.appendChild(item);
             });
           }
@@ -1308,7 +1386,6 @@
       }
     }
 
-    // Service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((reg) => {
