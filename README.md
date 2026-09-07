@@ -1,0 +1,1 @@
+# virtuschat-seznam-prace-app
