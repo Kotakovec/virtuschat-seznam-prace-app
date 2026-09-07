@@ -42,7 +42,6 @@
       user-select: none;
     }
 
-    /* Horní lišta */
     header {
       width: 100%;
       position: sticky;
@@ -116,7 +115,6 @@
       color: var(--text-main);
     }
 
-    /* Seznam úkolů */
     .container {
       width: 100%;
       padding: 14px 12px;
@@ -218,7 +216,6 @@
       font-size: 0.9rem;
     }
 
-    /* Plovoucí tlačítko vlevo dole pro mobily */
     .fab-btn {
       position: fixed;
       bottom: calc(20px + env(safe-area-inset-bottom, 0px));
@@ -239,7 +236,6 @@
       border: 2px solid rgba(255, 255, 255, 0.15);
     }
 
-    /* Overlay */
     .overlay {
       position: fixed;
       inset: 0;
@@ -256,7 +252,6 @@
       opacity: 1;
     }
 
-    /* Přihlašovací Modal */
     .login-modal {
       position: fixed;
       top: 50%;
@@ -283,7 +278,6 @@
       font-size: 1.15rem;
     }
 
-    /* Prevence iOS auto-zoomu (min 16px) */
     input[type="text"], input[type="password"] {
       font-size: 16px !important;
       padding: 12px 14px;
@@ -306,7 +300,6 @@
       margin-top: 6px;
     }
 
-    /* Mobilní Bottom Sheet */
     .bottom-sheet {
       position: fixed;
       left: 0;
@@ -348,7 +341,6 @@
       margin: 14px 0 10px;
     }
 
-    /* Horizontální výběr lidí */
     .people-selector {
       display: flex;
       gap: 14px;
@@ -414,7 +406,6 @@
 </head>
 <body>
 
-  <!-- Mobilní horní lišta -->
   <header>
     <h1>VirtusChat To-Do</h1>
     <div class="auth-section" id="auth-section">
@@ -422,19 +413,15 @@
     </div>
   </header>
 
-  <!-- Seznam úkolů -->
   <div class="container">
     <ul class="task-list" id="task-list"></ul>
     <div class="empty-msg" id="empty-msg">Načítám úkoly...</div>
   </div>
 
-  <!-- Tlačítko + vlevo dole (jen pro Jakuba a Daniela) -->
   <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-  <!-- Pozadí modálů -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- Přihlašovací okno -->
   <div class="login-modal" id="login-modal">
     <h2>Přihlášení</h2>
     <input type="text" id="login-username" placeholder="Uživatel (jakub, daniel...)" autocomplete="username" autocapitalize="none">
@@ -445,7 +432,6 @@
     </div>
   </div>
 
-  <!-- Vysouvací spodní panel -->
   <div class="bottom-sheet" id="bottom-sheet">
     <div class="sheet-handle"></div>
     <h2>Nový úkol</h2>
@@ -476,7 +462,8 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    // Explicitní předání databaseURL pro garanci správné evropské instance
+    const db = getDatabase(app, firebaseConfig.databaseURL);
 
     const todosRef = ref(db, 'todos');
     const usersRef = ref(db, 'users');
@@ -552,7 +539,9 @@
       }
 
       try {
-        const snapshot = await get(ref(db, `users/${usernameKey}`));
+        const userPath = `users/${usernameKey}`;
+        const snapshot = await get(ref(db, userPath));
+        
         if (snapshot.exists()) {
           const userData = snapshot.val();
           if (userData.password === password) {
@@ -568,11 +557,12 @@
             alert('Nesprávné heslo.');
           }
         } else {
-          alert('Uživatel s tímto jménem neexistuje.');
+          alert(`Uživatel "${usernameKey}" v databázi neexistuje.`);
         }
       } catch (err) {
-        console.error(err);
-        alert('Chyba spojení s Firebase.');
+        console.error("Firebase Error Detail:", err);
+        // Vypíše přesný důvod (Permission denied, Network offline, atd.)
+        alert('Chyba: ' + (err.code || err.message || JSON.stringify(err)));
       }
     });
 
@@ -583,9 +573,12 @@
       closeBottomSheet();
     }
 
+    // Realtime poslech seznamu lidí
     onValue(usersRef, (snapshot) => {
       allUsers = snapshot.val() || {};
       renderPeopleSelector();
+    }, (error) => {
+      console.error("Chyba čtení users:", error);
     });
 
     function renderPeopleSelector() {
@@ -654,10 +647,11 @@
       }).then(() => {
         closeBottomSheet();
       }).catch(err => {
-        console.error(err);
+        alert('Chyba při ukládání: ' + err.message);
       });
     });
 
+    // Realtime poslech úkolů
     onValue(todosRef, (snapshot) => {
       taskList.innerHTML = '';
       const data = snapshot.val();
@@ -714,23 +708,19 @@
 
         taskList.appendChild(li);
       });
+    }, (error) => {
+      emptyMsg.textContent = 'Chyba načítání: ' + error.message;
     });
 
-    // PWA Service Worker s automatickou kontrolou změn 24/7
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((registration) => {
-          // Kontrola změn na GitHubu hned při startu
           registration.update();
-
-          // Kontrola změn při návratu do aplikace / přepnutí panelu
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
               registration.update();
             }
           });
-
-          // Automatický refresh při nalezení nového buildu
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
@@ -743,7 +733,6 @@
           });
         }).catch((err) => console.log('SW chyba:', err));
 
-        // Reaktivace a obnovení okna, když nový Service Worker převezme kontrolu
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (!refreshing) {
