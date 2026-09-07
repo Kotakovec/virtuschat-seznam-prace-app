@@ -1,7 +1,7 @@
 {
   "id": "/VirtusChat-ToDo/",
   "name": "VirtusChat To-Do",
-  "short_name": "VirtusChat",
+  "short_name": "VirtusChat Portál",
   "description": "Správa úkolů pro VirtusChat tým",
   "start_url": "./index.html",
   "scope": "./",
