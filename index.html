@@ -51,19 +51,24 @@
       user-select: none;
     }
 
-    /* Horní lišta */
-    header {
+    /* Pevný horní kontejner (Lišta + Oznámení) */
+    .top-fixed-container {
       width: 100%;
       position: sticky;
       top: 0;
-      background: rgba(11, 15, 25, 0.95);
+      z-index: 50;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    header {
+      width: 100%;
+      background: rgba(11, 15, 25, 0.96);
       backdrop-filter: blur(10px);
       padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border);
-      z-index: 30;
     }
 
     .header-left {
@@ -106,7 +111,6 @@
       transform: rotate(180deg);
     }
 
-    /* Dropdown pod titulkem */
     .portal-dropdown {
       position: absolute;
       top: calc(100% + 8px);
@@ -169,7 +173,6 @@
       gap: 10px;
     }
 
-    /* Kapsle kalendáře */
     .cal-capsule-btn {
       display: flex;
       align-items: center;
@@ -222,18 +225,19 @@
       color: white;
     }
 
-    /* Červený oznamovací pruh */
+    /* Pevné červené oznámení (výchozí display: none) */
     .info-banner {
       width: 100%;
       background: #7f1d1d;
       color: #fca5a5;
       padding: 8px 16px;
-      display: flex;
+      display: none;
       justify-content: space-between;
       align-items: center;
       font-size: 0.8rem;
       font-weight: 600;
       gap: 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     }
 
     .banner-badges {
@@ -378,7 +382,6 @@
       word-break: break-word;
     }
 
-    /* Tlačítka pro Admina */
     .task-actions-right {
       display: flex;
       align-items: center;
@@ -712,7 +715,6 @@
       font-weight: 600;
     }
 
-    /* Nastavení Pouze pro čtení (Toggle checkbox) */
     .readonly-toggle-row {
       display: flex;
       align-items: center;
@@ -746,7 +748,6 @@
       margin-bottom: 8px;
     }
 
-    /* Informace o schváleném úkolu v modalu */
     .approved-task-info {
       background: #0b1329;
       border: 1px solid var(--border-light);
@@ -993,46 +994,46 @@
 </head>
 <body>
 
-  <!-- Horní lišta -->
-  <header>
-    <div class="header-left">
-      <img src="icon-192.png" alt="V" class="header-logo" onerror="this.style.display='none'">
-      <div class="header-title-wrap" id="portal-title-btn">
-        <span>VirtusChat Portál</span>
-        <span class="arrow">▼</span>
-      </div>
-
-      <!-- Dropdown menu -->
-      <div class="portal-dropdown" id="portal-dropdown">
-        <div class="dropdown-header">
-          <div class="dropdown-user-name" id="dropdown-user-name">Nepřihlášen</div>
+  <!-- Horní zafixovaný kontejner (Lišta + Oznámení) -->
+  <div class="top-fixed-container">
+    <header>
+      <div class="header-left">
+        <img src="icon-192.png" alt="V" class="header-logo" onerror="this.style.display='none'">
+        <div class="header-title-wrap" id="portal-title-btn">
+          <span>VirtusChat Portál</span>
+          <span class="arrow">▼</span>
         </div>
-        <button class="dropdown-item" id="btn-menu-change-pwd">
-          <span>🔒</span> Změna hesla
-        </button>
-        <button class="dropdown-item danger" id="btn-menu-logout">
-          <span>🚪</span> Odhlásit se
-        </button>
+
+        <div class="portal-dropdown" id="portal-dropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-user-name" id="dropdown-user-name">Nepřihlášen</div>
+          </div>
+          <button class="dropdown-item" id="btn-menu-change-pwd">
+            <span>🔒</span> Změna hesla
+          </button>
+          <button class="dropdown-item danger" id="btn-menu-logout">
+            <span>🚪</span> Odhlásit se
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Vpravo nahoře kapsle kalendáře -->
-    <div class="header-right">
-      <button class="cal-capsule-btn" id="cal-badge" title="Otevřít kalendář úkolů">
-        <span class="cal-capsule-icon">📅</span>
-        <span class="cal-capsule-text">Kalendář</span>
-        <span class="cal-capsule-date" id="cal-date-text"></span>
-      </button>
-      <button class="auth-btn" id="btn-open-login" style="display: none;">Přihlásit</button>
-    </div>
-  </header>
+      <div class="header-right">
+        <button class="cal-capsule-btn" id="cal-badge" title="Otevřít kalendář úkolů">
+          <span class="cal-capsule-icon">📅</span>
+          <span class="cal-capsule-text">Kalendář</span>
+          <span class="cal-capsule-date" id="cal-date-text"></span>
+        </button>
+        <button class="auth-btn" id="btn-open-login" style="display: none;">Přihlásit</button>
+      </div>
+    </header>
 
-  <!-- Oznámení -->
-  <div class="info-banner" id="info-banner">
-    <span id="banner-text">Máš 0 úkolů, z toho 0 s termínem.</span>
-    <div class="banner-badges">
-      <span class="badge-pill approval" id="banner-approval-pill" style="display: none;">0 ke schválení</span>
-      <span class="badge-pill" id="banner-active-pill">0 aktivní</span>
+    <!-- Oznámení (skryje se automaticky, pokud je 0) -->
+    <div class="info-banner" id="info-banner">
+      <span id="banner-text"></span>
+      <div class="banner-badges">
+        <span class="badge-pill approval" id="banner-approval-pill" style="display: none;">0 ke schválení</span>
+        <span class="badge-pill" id="banner-active-pill">0 aktivní</span>
+      </div>
     </div>
   </div>
 
@@ -1046,7 +1047,6 @@
   <div class="bottom-bar">
     <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-    <!-- Přepínač Vše / Moje (pouze pro Admina) -->
     <div class="filter-switch" id="filter-switch">
       <button class="filter-btn active" id="filter-all">
         <span>🌐</span> Vše
@@ -1057,7 +1057,6 @@
     </div>
   </div>
 
-  <!-- Overlay -->
   <div class="overlay" id="overlay"></div>
 
   <!-- POPUP KALENDÁŘ -->
@@ -1118,13 +1117,11 @@
     <div class="sheet-handle"></div>
     <h2 id="sheet-title">Nový úkol</h2>
     
-    <!-- Zobrazení schváleného úkolu (když nepůjde editovat) -->
     <div id="approved-info-wrap" class="approved-task-info" style="display: none;">
       <div class="approved-task-title" id="approved-info-title"></div>
       <div class="approved-task-meta" id="approved-info-meta"></div>
     </div>
 
-    <!-- Editovatelná pole (pro ne-schválené úkoly) -->
     <div id="editable-fields-wrap">
       <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
 
@@ -1143,15 +1140,13 @@
       <div class="sheet-label">Přiřadit lidi (klepnutím vyber):</div>
       <div class="people-selector" id="people-selector"></div>
 
-      <!-- Přepínač Pouze pro čtení -->
       <label class="readonly-toggle-row" for="task-readonly-check">
         <input type="checkbox" id="task-readonly-check">
-        <span>🔒 Pouze pro čtení</span>
+        <span>🔒 Pouze pro čtení pro nezařazené</span>
       </label>
-      <div class="readonly-toggle-desc">Úkol uvidí všichni, ale běžní uživatelé ho nemohou označovat ani měnit.</div>
+      <div class="readonly-toggle-desc">Úkol uvidí všichni, ale označovat ho mohou pouze přiřazení lidé a admin.</div>
     </div>
 
-    <!-- Tlačítka dole -->
     <div class="sheet-actions">
       <button class="btn-sheet-secondary" id="btn-close-sheet">Zavřít</button>
       <button class="btn-sheet-danger" id="btn-delete-task-sheet" style="display: none;">Smazat</button>
@@ -1200,6 +1195,7 @@
     const calDateText = document.getElementById('cal-date-text');
     const btnOpenLogin = document.getElementById('btn-open-login');
 
+    const infoBanner = document.getElementById('info-banner');
     const bannerText = document.getElementById('banner-text');
     const bannerActivePill = document.getElementById('banner-active-pill');
     const bannerApprovalPill = document.getElementById('banner-approval-pill');
@@ -1304,25 +1300,34 @@
       renderTasks();
     }
 
+    // Horní banner: Když je 0 úkolů i 0 ke schválení -> skryje se celý pás
     function updateNotificationBanner() {
       if (!currentUser) {
-        bannerText.textContent = 'Pro zobrazení svých úkolů se přihlas.';
-        bannerActivePill.textContent = '0 aktivní';
-        bannerApprovalPill.style.display = 'none';
+        infoBanner.style.display = 'none';
         return;
       }
 
       const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
-      // Počítadlo mých úkolů
       const myTasks = rawTasks.filter(t => {
-        if (t.readOnly) return true; // readOnly úkoly se zobrazují všem
+        if (t.readOnly) return true;
         return Array.isArray(t.assignees) && t.assignees.includes(currentUser.name);
       });
       const myActive = myTasks.filter(t => !t.completed && t.status !== 'completed' && t.status !== 'pending_approval');
       const myWithDeadline = myActive.filter(t => t.dueDate);
 
       const count = myActive.length;
+      const pendingApprovalCount = isAdmin ? rawTasks.filter(t => t.status === 'pending_approval').length : 0;
+
+      // Pokud je v oznámení 0 a admin nemá nic ke schválení, pás se vůbec neukáže
+      if (count === 0 && pendingApprovalCount === 0) {
+        infoBanner.style.display = 'none';
+        return;
+      }
+
+      // Jinak pás zobrazíme
+      infoBanner.style.display = 'flex';
+
       let textWord = 'úkolů';
       if (count === 1) textWord = 'úkol';
       else if (count >= 2 && count <= 4) textWord = 'úkoly';
@@ -1330,14 +1335,9 @@
       bannerText.textContent = `Máš ${count} ${textWord}, z toho ${myWithDeadline.length} s termínem.`;
       bannerActivePill.textContent = `${count} aktivní`;
 
-      if (isAdmin) {
-        const pendingApprovalCount = rawTasks.filter(t => t.status === 'pending_approval').length;
-        if (pendingApprovalCount > 0) {
-          bannerApprovalPill.style.display = 'inline-block';
-          bannerApprovalPill.textContent = `${pendingApprovalCount} ke schválení`;
-        } else {
-          bannerApprovalPill.style.display = 'none';
-        }
+      if (isAdmin && pendingApprovalCount > 0) {
+        bannerApprovalPill.style.display = 'inline-block';
+        bannerApprovalPill.textContent = `${pendingApprovalCount} ke schválení`;
       } else {
         bannerApprovalPill.style.display = 'none';
       }
@@ -1472,7 +1472,6 @@
       closeBottomSheet();
     }
 
-    // Popup Kalendář
     calBadge.addEventListener('click', () => {
       calCurrentDate = new Date();
       openCalModal();
@@ -1649,7 +1648,6 @@
       });
     }
 
-    // Otevření bottom sheetu
     function openBottomSheet(task = null) {
       if (task) {
         editingTaskId = task.id;
@@ -1659,13 +1657,13 @@
           sheetTitle.textContent = 'Schválený úkol';
           editableFieldsWrap.style.display = 'none';
           approvedInfoWrap.style.display = 'flex';
-          approvedInfoTitle.textContent = (task.readOnly ? '🔒 ' : '') + task.text;
+          approvedInfoTitle.textContent = task.text;
 
           let metaText = [];
           if (task.startDate) metaText.push(`Od: ${formatDateShort(task.startDate)}`);
           if (task.dueDate) metaText.push(`Do: ${formatDateTime(task.dueDate)}`);
           if (task.assignees && task.assignees.length > 0) metaText.push(`Přiřazeno: ${task.assignees.join(', ')}`);
-          if (task.readOnly) metaText.push(`Režim: Pouze pro čtení`);
+          if (task.readOnly) metaText.push(`Režim: Pouze pro čtení pro nezařazené`);
 
           approvedInfoMeta.innerHTML = metaText.join('<br>') || 'Bez termínu';
 
@@ -1835,7 +1833,6 @@
 
       if (!isAdmin || currentFilter === 'my') {
         if (currentUser) {
-          // Pokud je readOnly, vidí ho VŠICHNI, jinak podle přiřazených lidí
           displayTasks = displayTasks.filter(t => {
             if (t.readOnly) return true;
             return Array.isArray(t.assignees) && t.assignees.includes(currentUser.name);
@@ -1855,7 +1852,6 @@
 
       emptyMsg.style.display = 'none';
 
-      // ŘAZENÍ: Schválené jdou dolů
       displayTasks.sort((a, b) => {
         const aCompleted = a.completed || a.status === 'completed';
         const bCompleted = b.completed || b.status === 'completed';
@@ -1879,6 +1875,9 @@
         const isRejected = task.status === 'rejected';
         const isCompleted = task.completed || task.status === 'completed';
         const isReadOnly = !!task.readOnly;
+
+        const isUserAssigned = currentUser && Array.isArray(task.assignees) && task.assignees.includes(currentUser.name);
+        const showReadOnlyBadge = isReadOnly && !isUserAssigned && !isAdmin;
 
         let itemClass = 'task-item';
         if (isCompleted) itemClass += ' completed';
@@ -1911,7 +1910,6 @@
           metaHtml += `<div class="assignees-wrap">${assigneesHtml}</div>`;
         }
 
-        // Tlačítka pro Admina
         let actionsHtml = '';
         if (isAdmin) {
           if (isPending) {
@@ -1930,17 +1928,12 @@
           }
         }
 
-        // Checkbox chování:
-        // - Pokud je readOnly a uživatel NENÍ admin -> uzamčeno (disabled)
-        // - Pokud čeká na schválení a uživatel NENÍ admin -> uzamčeno (disabled)
-        // - Pokud je schváleno -> uzamčeno (disabled)
-        const isLockedForUser = (!isAdmin && isReadOnly) || (!isAdmin && isPending) || isCompleted;
+        const isLockedForUser = (!isAdmin && isReadOnly && !isUserAssigned) || (!isAdmin && isPending) || isCompleted;
         const checkboxDisabled = isLockedForUser ? 'disabled' : '';
         const checkboxChecked = isCompleted || isPending ? 'checked' : '';
 
-        // Pilulky před názvem
         const approvedBadgeHtml = isCompleted ? `<span class="badge-approved">Schváleno</span>` : '';
-        const readOnlyBadgeHtml = isReadOnly ? `<span class="badge-readonly" title="Všichni vidí, nelze označovat">🔒 Pouze pro čtení</span>` : '';
+        const readOnlyBadgeHtml = showReadOnlyBadge ? `<span class="badge-readonly" title="Nejsi mezi zúčastněnými, pouze sleduješ">🔒 Pouze pro čtení</span>` : '';
 
         const statusDotHtml = !isCompleted ? `<span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>` : '';
 
@@ -1968,8 +1961,7 @@
               status: checked ? 'completed' : 'active'
             });
           } else {
-            // Pokud je readOnly, běžný uživatel se sem díky disabled ani nedostane
-            if (isReadOnly) {
+            if (isReadOnly && !isUserAssigned) {
               e.preventDefault();
               return;
             }
