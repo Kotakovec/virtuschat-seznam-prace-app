@@ -1,11 +1,11 @@
 const CACHE_NAME = 'todo-live-v1';
 
-// Instalace - nečekej na zavření starých oken, hned aktivuj
+// Instalace: přeskočí čekání a hned se aktivuje
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Aktivace - převezmi kontrolu nad všemi otevřenými taby hned
+// Aktivace: smaže staré cache a převezme kontrolu nad všemi taby
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -20,9 +20,9 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network First: Vždycky zkus nejprve GitHub po síti. Cache použij jen když je mobil offline.
+// Network First: dotaz jde vždy primárně na server/GitHub, do cache sahá jen při offline
 self.addEventListener('fetch', (event) => {
-  // Ignoruj Firebase požadavky (ty se řídí samy)
+  // Ignorovat Firebase volání (RTDB websocket a API)
   if (event.request.url.includes('firebaseio.com') || event.request.url.includes('googleapis.com')) {
     return;
   }
@@ -39,7 +39,6 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(() => {
-        // Pokud není internet, vezmi to z cache
         return caches.match(event.request);
       })
   );
