@@ -51,7 +51,7 @@
       user-select: none;
     }
 
-    /* Horní navigace */
+    /* Horní lišta */
     header {
       width: 100%;
       position: sticky;
@@ -106,7 +106,7 @@
       transform: rotate(180deg);
     }
 
-    /* Dropdown menu pod VirtusChat Portál */
+    /* Dropdown pod titulkem */
     .portal-dropdown {
       position: absolute;
       top: calc(100% + 8px);
@@ -222,7 +222,7 @@
       color: white;
     }
 
-    /* Oznámení: moje úkoly */
+    /* Červený oznamovací pruh */
     .info-banner {
       width: 100%;
       background: #7f1d1d;
@@ -233,6 +233,14 @@
       align-items: center;
       font-size: 0.8rem;
       font-weight: 600;
+      gap: 8px;
+    }
+
+    .banner-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .info-banner .badge-pill {
@@ -241,6 +249,13 @@
       border-radius: 10px;
       color: white;
       font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .info-banner .badge-pill.approval {
+      background: var(--warning);
+      color: #000;
+      font-weight: 800;
     }
 
     /* Seznam úkolů */
@@ -265,7 +280,12 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .task-item.pending-approval {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: #172033;
     }
 
     .task-item.completed {
@@ -307,6 +327,11 @@
       flex-shrink: 0;
     }
 
+    .task-left input[type="checkbox"]:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
     .task-text {
       font-size: 0.95rem;
       font-weight: 600;
@@ -315,11 +340,50 @@
       user-select: text;
     }
 
+    /* Schvalovací a editační tlačítka vpravo v úkolu (bez křížku) */
     .task-actions-right {
       display: flex;
       align-items: center;
       gap: 6px;
       flex-shrink: 0;
+    }
+
+    .btn-approve {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #34d399;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-approve:active {
+      background: var(--accent);
+      color: white;
+      transform: scale(0.95);
+    }
+
+    .btn-reject {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      border-radius: 8px;
+      padding: 4px 7px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-reject:active {
+      background: var(--danger);
+      color: white;
+      transform: scale(0.95);
     }
 
     .btn-icon {
@@ -333,10 +397,6 @@
 
     .btn-icon.edit:hover {
       color: var(--warning);
-    }
-
-    .btn-icon.delete:hover {
-      color: var(--danger);
     }
 
     .task-meta-row {
@@ -360,6 +420,13 @@
       background: rgba(239, 68, 68, 0.15);
       border-color: rgba(239, 68, 68, 0.4);
       color: #fca5a5;
+    }
+
+    .date-pill.pending-pill {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      font-weight: 700;
     }
 
     .assignees-wrap {
@@ -424,17 +491,17 @@
       transform: scale(0.95);
     }
 
-    /* Přepínač Vše / Moje (skrytý pro běžného uživatele) */
+    /* Přepínač Vše / Moje (pouze pro Admina) */
     .filter-switch {
       background: #141c2e;
       border: 1px solid var(--border-light);
       border-radius: 24px;
       padding: 4px;
-      display: none; /* Zapne se pouze pro roli admin */
+      display: none;
       gap: 4px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
       pointer-events: auto;
-      margin-left: auto; /* Pokud není vlevo tlačítko +, zarovná se vpravo */
+      margin-left: auto;
     }
 
     .filter-btn {
@@ -627,6 +694,13 @@
       color: white;
     }
 
+    .btn-sheet-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      flex: 0.6 !important;
+    }
+
     /* Modály */
     .app-modal {
       position: fixed;
@@ -817,7 +891,7 @@
         <span class="arrow">▼</span>
       </div>
 
-      <!-- Dropdown menu (bez rolí) -->
+      <!-- Dropdown menu -->
       <div class="portal-dropdown" id="portal-dropdown">
         <div class="dropdown-header">
           <div class="dropdown-user-name" id="dropdown-user-name">Nepřihlášen</div>
@@ -842,10 +916,13 @@
     </div>
   </header>
 
-  <!-- Oznámení: vždy jen moje úkoly -->
+  <!-- Oznámení -->
   <div class="info-banner" id="info-banner">
     <span id="banner-text">Máš 0 úkolů, z toho 0 s termínem.</span>
-    <span class="badge-pill" id="banner-active-pill">0 aktivní</span>
+    <div class="banner-badges">
+      <span class="badge-pill approval" id="banner-approval-pill" style="display: none;">0 ke schválení</span>
+      <span class="badge-pill" id="banner-active-pill">0 aktivní</span>
+    </div>
   </div>
 
   <!-- Hlavní seznam úkolů -->
@@ -858,7 +935,7 @@
   <div class="bottom-bar">
     <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-    <!-- Přepínač viditelný pouze pro Admina -->
+    <!-- Přepínač Vše / Moje (zobrazen pouze pro roli admin) -->
     <div class="filter-switch" id="filter-switch">
       <button class="filter-btn active" id="filter-all">
         <span>🌐</span> Vše
@@ -949,6 +1026,7 @@
 
     <div class="sheet-actions">
       <button class="btn-sheet-secondary" id="btn-close-sheet">Zavřít</button>
+      <button class="btn-sheet-danger" id="btn-delete-task-sheet" style="display: none;">Smazat</button>
       <button class="btn-sheet-primary" id="btn-save-task">Uložit úkol</button>
     </div>
   </div>
@@ -995,6 +1073,7 @@
 
     const bannerText = document.getElementById('banner-text');
     const bannerActivePill = document.getElementById('banner-active-pill');
+    const bannerApprovalPill = document.getElementById('banner-approval-pill');
 
     const fabAdd = document.getElementById('fab-add');
     const filterSwitch = document.getElementById('filter-switch');
@@ -1031,6 +1110,7 @@
     const bottomSheet = document.getElementById('bottom-sheet');
     const btnCloseSheet = document.getElementById('btn-close-sheet');
     const btnSaveTask = document.getElementById('btn-save-task');
+    const btnDeleteTaskSheet = document.getElementById('btn-delete-task-sheet');
     const taskInput = document.getElementById('task-input');
     const taskStartDate = document.getElementById('task-start-date');
     const taskDueDate = document.getElementById('task-due-date');
@@ -1064,8 +1144,6 @@
       if (currentUser) {
         calBadge.style.display = 'flex';
         btnOpenLogin.style.display = 'none';
-
-        // Čisté jméno bez rolí
         dropdownUserName.textContent = currentUser.name;
 
         const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
@@ -1076,7 +1154,7 @@
         } else {
           fabAdd.style.display = 'none';
           filterSwitch.style.display = 'none';
-          currentFilter = 'my'; // Běžný uživatel vidí automaticky jen své úkoly
+          currentFilter = 'my';
         }
       } else {
         calBadge.style.display = 'none';
@@ -1086,19 +1164,24 @@
         filterSwitch.style.display = 'none';
         currentFilter = 'all';
       }
-      updateMyNotificationBanner();
+      updateNotificationBanner();
       renderTasks();
     }
 
-    function updateMyNotificationBanner() {
+    // Horní banner: Moje úkoly + případné úkoly ke schválení pro admina
+    function updateNotificationBanner() {
       if (!currentUser) {
         bannerText.textContent = 'Pro zobrazení svých úkolů se přihlas.';
         bannerActivePill.textContent = '0 aktivní';
+        bannerApprovalPill.style.display = 'none';
         return;
       }
 
+      const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
+
+      // Moje aktivní úkoly
       const myTasks = rawTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
-      const myActive = myTasks.filter(t => !t.completed);
+      const myActive = myTasks.filter(t => !t.completed && t.status !== 'pending_approval');
       const myWithDeadline = myActive.filter(t => t.dueDate);
 
       const count = myActive.length;
@@ -1108,9 +1191,22 @@
 
       bannerText.textContent = `Máš ${count} ${textWord}, z toho ${myWithDeadline.length} s termínem.`;
       bannerActivePill.textContent = `${count} aktivní`;
+
+      // Pokud je uživatel Admin, spočítáme úkoly čekající na schválení
+      if (isAdmin) {
+        const pendingApprovalCount = rawTasks.filter(t => t.status === 'pending_approval').length;
+        if (pendingApprovalCount > 0) {
+          bannerApprovalPill.style.display = 'inline-block';
+          bannerApprovalPill.textContent = `${pendingApprovalCount} ke schválení`;
+        } else {
+          bannerApprovalPill.style.display = 'none';
+        }
+      } else {
+        bannerApprovalPill.style.display = 'none';
+      }
     }
 
-    // VirtusChat Menu
+    // VirtusChat Dropdown
     portalTitleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       portalTitleBtn.classList.toggle('open');
@@ -1422,6 +1518,7 @@
         taskStartDate.value = task.startDate || '';
         taskDueDate.value = task.dueDate || '';
         selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
+        btnDeleteTaskSheet.style.display = 'block';
       } else {
         editingTaskId = null;
         sheetTitle.textContent = 'Nový úkol';
@@ -1429,6 +1526,7 @@
         taskStartDate.value = '';
         taskDueDate.value = '';
         selectedPeople = [];
+        btnDeleteTaskSheet.style.display = 'none';
       }
 
       renderPeopleSelector();
@@ -1445,6 +1543,14 @@
 
     fabAdd.addEventListener('click', () => openBottomSheet(null));
     btnCloseSheet.addEventListener('click', closeBottomSheet);
+
+    btnDeleteTaskSheet.addEventListener('click', () => {
+      if (editingTaskId && confirm('Opravdu chceš tento úkol smazat?')) {
+        remove(ref(db, `todos/${editingTaskId}`)).then(() => {
+          closeBottomSheet();
+        });
+      }
+    });
 
     overlay.addEventListener('click', () => {
       closeLoginModal();
@@ -1475,6 +1581,7 @@
         const randomColor = DISTINCT_COLORS[Math.floor(Math.random() * DISTINCT_COLORS.length)];
         taskPayload.color = randomColor;
         taskPayload.completed = false;
+        taskPayload.status = 'active'; // 'active' | 'pending_approval' | 'completed'
         taskPayload.createdAt = Date.now();
         taskPayload.createdBy = currentUser ? currentUser.name : 'Neznámý';
 
@@ -1525,7 +1632,7 @@
         rawTasks = Object.entries(data).map(([id, task]) => ({ id, ...task }));
         rawTasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       }
-      updateMyNotificationBanner();
+      updateNotificationBanner();
       renderTasks();
       if (calModal.classList.contains('active')) {
         renderCalendar(calCurrentDate);
@@ -1538,7 +1645,6 @@
       let displayTasks = rawTasks;
       const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
-      // Běžný uživatel má vždy filtr 'my', admin se může přepínat
       if (!isAdmin || currentFilter === 'my') {
         if (currentUser) {
           displayTasks = rawTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
@@ -1559,7 +1665,10 @@
 
       displayTasks.forEach((task) => {
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''}`;
+        const isPending = task.status === 'pending_approval';
+        const isCompleted = task.completed;
+
+        li.className = `task-item ${isCompleted ? 'completed' : ''} ${isPending ? 'pending-approval' : ''}`;
 
         const taskColor = getTaskColor(task);
 
@@ -1571,6 +1680,9 @@
           const isDeadOverdue = !task.completed && (new Date(task.dueDate).getTime() < Date.now());
           metaHtml += `<span class="date-pill ${isDeadOverdue ? 'deadline' : ''}">Do: ${formatDateTime(task.dueDate)}</span>`;
         }
+        if (isPending) {
+          metaHtml += `<span class="date-pill pending-pill">⏳ Čeká na schválení</span>`;
+        }
 
         if (task.assignees && Array.isArray(task.assignees) && task.assignees.length > 0) {
           const assigneesHtml = task.assignees.map(name => `
@@ -1579,18 +1691,34 @@
           metaHtml += `<div class="assignees-wrap">${assigneesHtml}</div>`;
         }
 
-        const actionsHtml = isAdmin ? `
-          <div class="task-actions-right">
-            <button class="btn-icon edit" title="Upravit úkol">✏️</button>
-            <button class="btn-icon delete" title="Smazat úkol">✕</button>
-          </div>
-        ` : '';
+        // Tlačítka pro schválení a úpravu (KŘÍŽEK ODSTRANĚN)
+        let actionsHtml = '';
+        if (isAdmin) {
+          if (isPending) {
+            actionsHtml = `
+              <div class="task-actions-right">
+                <button class="btn-approve" data-id="${task.id}" title="Schválit úkol">✔️ Schválit</button>
+                <button class="btn-reject" data-id="${task.id}" title="Vrátit k dopracování">↩️</button>
+                <button class="btn-icon edit" title="Upravit úkol">✏️</button>
+              </div>
+            `;
+          } else {
+            actionsHtml = `
+              <div class="task-actions-right">
+                <button class="btn-icon edit" title="Upravit úkol">✏️</button>
+              </div>
+            `;
+          }
+        }
+
+        // Checkbox: pokud je pending, běžný uživatel už ho nemůže znova překliknout
+        const checkboxDisabled = !isAdmin && isPending ? 'disabled' : '';
 
         li.innerHTML = `
           <div class="task-main-row">
             <div class="task-left">
               <span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>
-              <input type="checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+              <input type="checkbox" ${isCompleted ? 'checked' : ''} ${checkboxDisabled} data-id="${task.id}">
               <span class="task-text">${task.text}</span>
             </div>
             ${actionsHtml}
@@ -1598,18 +1726,51 @@
           ${metaHtml ? `<div class="task-meta-row">${metaHtml}</div>` : ''}
         `;
 
+        // Logika checkboxu
         li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-          update(ref(db, `todos/${task.id}`), {
-            completed: e.target.checked
-          });
+          const checked = e.target.checked;
+          if (isAdmin) {
+            // Admin odškrtne rovnou jako hotové
+            update(ref(db, `todos/${task.id}`), {
+              completed: checked,
+              status: checked ? 'completed' : 'active'
+            });
+          } else {
+            // Developer/User: po odškrtnutí pošle ke schválení adminům
+            if (checked) {
+              update(ref(db, `todos/${task.id}`), {
+                completed: false,
+                status: 'pending_approval'
+              });
+            } else {
+              update(ref(db, `todos/${task.id}`), {
+                completed: false,
+                status: 'active'
+              });
+            }
+          }
         });
 
+        // Admin akce: Schválit / Vrátit / Editovat
         if (isAdmin) {
+          if (isPending) {
+            li.querySelector('.btn-approve').addEventListener('click', () => {
+              update(ref(db, `todos/${task.id}`), {
+                completed: true,
+                status: 'completed'
+              });
+            });
+
+            li.querySelector('.btn-reject').addEventListener('click', () => {
+              update(ref(db, `todos/${task.id}`), {
+                completed: false,
+                status: 'active'
+              });
+            });
+          }
+
           li.querySelector('.btn-icon.edit').addEventListener('click', () => {
             openBottomSheet(task);
-          });
-          li.querySelector('.btn-icon.delete').addEventListener('click', () => {
-            remove(ref(db, `todos/${task.id}`));
           });
         }
 
