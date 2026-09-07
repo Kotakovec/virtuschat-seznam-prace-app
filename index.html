@@ -175,40 +175,46 @@
       gap: 10px;
     }
 
-    .cal-badge {
+    /* Tlačítko kalendáře jako kapsle */
+    .cal-capsule-btn {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
+      gap: 7px;
       background: #141c2e;
       border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 2px;
+      border-radius: 20px;
+      padding: 6px 12px;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      transition: transform 0.1s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+      transition: all 0.15s ease;
+      color: var(--text-main);
     }
 
-    .cal-badge:active {
-      transform: scale(0.94);
+    .cal-capsule-btn:active {
+      transform: scale(0.95);
       border-color: var(--primary);
+      background: #1b263d;
     }
 
-    .cal-badge .cal-month {
-      font-size: 0.55rem;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: var(--danger);
+    .cal-capsule-icon {
+      font-size: 0.95rem;
       line-height: 1;
     }
 
-    .cal-badge .cal-day {
-      font-size: 0.95rem;
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--text-main);
+    .cal-capsule-text {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .cal-capsule-date {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 1px 6px;
+      border-radius: 10px;
     }
 
     .auth-btn {
@@ -222,7 +228,7 @@
       color: white;
     }
 
-    /* Červený pruh - vždy jen moje úkoly */
+    /* Červený notifikační banner */
     .info-banner {
       width: 100%;
       background: #7f1d1d;
@@ -291,7 +297,6 @@
       flex: 1;
     }
 
-    /* Tečka unikátní barvy úkolu */
     .status-dot {
       width: 10px;
       height: 10px;
@@ -762,7 +767,6 @@
       color: #60a5fa;
     }
 
-    /* Tečky úkolů v buňce */
     .cal-dots-wrap {
       display: flex;
       gap: 3px;
@@ -779,7 +783,6 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
 
-    /* Rychlý výpis úkolů pro vybraný den */
     .cal-day-details {
       margin-top: 12px;
       padding-top: 10px;
@@ -833,12 +836,13 @@
       </div>
     </div>
 
-    <!-- Vpravo nahoře kalendář -->
+    <!-- Vpravo nahoře tlačítko kalendáře jako kapsle -->
     <div class="header-right">
-      <div class="cal-badge" id="cal-badge" title="Otevřít kalendář úkolů">
-        <span class="cal-month" id="cal-month">SEP</span>
-        <span class="cal-day" id="cal-day">7</span>
-      </div>
+      <button class="cal-capsule-btn" id="cal-badge" title="Otevřít kalendář úkolů">
+        <span class="cal-capsule-icon">📅</span>
+        <span class="cal-capsule-text">Kalendář</span>
+        <span class="cal-capsule-date" id="cal-date-text">7. 9.</span>
+      </button>
       <button class="auth-btn" id="btn-open-login" style="display: none;">Přihlásit</button>
     </div>
   </header>
@@ -992,8 +996,7 @@
     const btnMenuLogout = document.getElementById('btn-menu-logout');
 
     const calBadge = document.getElementById('cal-badge');
-    const calMonth = document.getElementById('cal-month');
-    const calDay = document.getElementById('cal-day');
+    const calDateText = document.getElementById('cal-date-text');
     const btnOpenLogin = document.getElementById('btn-open-login');
 
     const bannerText = document.getElementById('banner-text');
@@ -1039,14 +1042,12 @@
     const peopleSelector = document.getElementById('people-selector');
     const sheetTitle = document.getElementById('sheet-title');
 
-    // Paleta výrazných barev pro odlišení úkolů
     const DISTINCT_COLORS = [
       '#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4', 
       '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6', 
       '#a855f7', '#84cc16', '#eab308', '#0284c7', '#f43f5e'
     ];
 
-    // Získání stabilní unikátní barvy pro konkrétní úkol
     function getTaskColor(task) {
       if (task.color) return task.color;
       const str = task.id || task.text || '';
@@ -1058,11 +1059,10 @@
       return DISTINCT_COLORS[index];
     }
 
+    // Nastavení dnešního dne do kapsle nahoře
     function updateTodayBadge() {
       const now = new Date();
-      const months = ['LED', 'ÚNO', 'BŘE', 'DUB', 'KVĚ', 'ČVN', 'ČVC', 'SRP', 'ZÁŘ', 'ŘÍJ', 'LIS', 'PRO'];
-      calMonth.textContent = months[now.getMonth()];
-      calDay.textContent = now.getDate();
+      calDateText.textContent = `${now.getDate()}. ${now.getMonth() + 1}.`;
     }
     updateTodayBadge();
 
@@ -1270,7 +1270,6 @@
       renderCalendar(calCurrentDate);
     });
 
-    // Vykreslení kalendáře: tečka u každého dne v rozsahu OD - DO
     function renderCalendar(dateObj) {
       calDaysContainer.innerHTML = '';
       calDayDetails.style.display = 'none';
@@ -1289,7 +1288,6 @@
 
       const today = new Date();
 
-      // Dny z předchozího měsíce
       for (let i = startOffset - 1; i >= 0; i--) {
         const cell = document.createElement('div');
         cell.className = 'cal-day-cell other-month';
@@ -1297,7 +1295,6 @@
         calDaysContainer.appendChild(cell);
       }
 
-      // Dny aktuálního měsíce
       for (let day = 1; day <= daysInMonth; day++) {
         const cell = document.createElement('div');
         cell.className = 'cal-day-cell';
@@ -1309,7 +1306,6 @@
         const dayStr = String(day).padStart(2, '0');
         const cellDateStr = `${year}-${monthStr}-${dayStr}`;
 
-        // Zkontroluj, které úkoly probíhají v tento den (od startDate do dueDate)
         const dayTasks = rawTasks.filter(t => {
           if (!t.dueDate && !t.startDate) return false;
 
@@ -1364,6 +1360,8 @@
                 timeInfo = `${formatDateShort(t.startDate)} – ${formatDateShort(t.dueDate)}`;
               } else if (t.dueDate) {
                 timeInfo = `Do: ${t.dueDate.slice(11, 16) || formatDateShort(t.dueDate)}`;
+              } else if (t.startDate) {
+                timeInfo = `Od: ${formatDateShort(t.startDate)}`;
               }
 
               miniItem.innerHTML = `
@@ -1382,7 +1380,6 @@
       }
     }
 
-    // Uživatelé
     onValue(usersRef, (snapshot) => {
       allUsers = snapshot.val() || {};
       renderPeopleSelector();
@@ -1417,6 +1414,7 @@
       });
     }
 
+    // Otevření okna pro přidání / úpravu úkolu
     function openBottomSheet(task = null) {
       if (task) {
         editingTaskId = task.id;
@@ -1429,10 +1427,8 @@
         editingTaskId = null;
         sheetTitle.textContent = 'Nový úkol';
         taskInput.value = '';
-        
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        taskStartDate.value = now.toISOString().slice(0, 16);
+        // Pole Od i Do necháme čisté – vyplňuje se pouze volitelně
+        taskStartDate.value = '';
         taskDueDate.value = '';
         selectedPeople = [];
       }
@@ -1478,7 +1474,6 @@
           closeBottomSheet();
         });
       } else {
-        // Vygenerování a uložení náhodné barvy při vytvoření úkolu
         const randomColor = DISTINCT_COLORS[Math.floor(Math.random() * DISTINCT_COLORS.length)];
         taskPayload.color = randomColor;
         taskPayload.completed = false;
@@ -1524,7 +1519,6 @@
       renderTasks();
     });
 
-    // Poslech úkolů
     onValue(todosRef, (snapshot) => {
       const data = snapshot.val();
       if (!data) {
@@ -1567,7 +1561,6 @@
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
-        // Tečka s unikátní barvou úkolu
         const taskColor = getTaskColor(task);
 
         let metaHtml = '';
