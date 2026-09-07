@@ -1,4 +1,4 @@
-const CACHE_NAME = 'todo-live-v1';
+const CACHE_NAME = 'todo-virtuschat-v10';
 
 // Instalace: přeskočí čekání a hned se aktivuje
 self.addEventListener('install', (event) => {
