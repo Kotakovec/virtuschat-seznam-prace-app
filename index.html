@@ -283,20 +283,17 @@
       transition: all 0.2s ease;
     }
 
-    /* Úkol čekající na schválení */
     .task-item.pending-approval {
       border-color: rgba(245, 158, 11, 0.5);
       background: #192238;
     }
 
-    /* Neschválený úkol (zčervená) */
     .task-item.rejected-task {
       border-color: #ef4444 !important;
       background: rgba(239, 68, 68, 0.12) !important;
       box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
     }
 
-    /* Schválený / dokončený úkol */
     .task-item.completed {
       opacity: 0.65;
       background: #0f1624;
@@ -339,7 +336,7 @@
 
     .task-left input[type="checkbox"]:disabled {
       cursor: not-allowed;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
     .task-text-wrap {
@@ -359,6 +356,19 @@
       padding: 2px 7px;
       border-radius: 8px;
       letter-spacing: 0.3px;
+    }
+
+    .badge-readonly {
+      background: rgba(148, 163, 184, 0.15);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #cbd5e1;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .task-text {
@@ -590,6 +600,8 @@
       max-width: 650px;
       margin: 0 auto;
       box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .bottom-sheet.active {
@@ -698,6 +710,40 @@
     .person-chip.selected span {
       color: var(--text-main);
       font-weight: 600;
+    }
+
+    /* Nastavení Pouze pro čtení (Toggle checkbox) */
+    .readonly-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0b1329;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 12px 0 6px;
+      cursor: pointer;
+    }
+
+    .readonly-toggle-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .readonly-toggle-row span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .readonly-toggle-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 30px;
+      margin-top: -2px;
+      margin-bottom: 8px;
     }
 
     /* Informace o schváleném úkolu v modalu */
@@ -1096,6 +1142,13 @@
 
       <div class="sheet-label">Přiřadit lidi (klepnutím vyber):</div>
       <div class="people-selector" id="people-selector"></div>
+
+      <!-- Přepínač Pouze pro čtení -->
+      <label class="readonly-toggle-row" for="task-readonly-check">
+        <input type="checkbox" id="task-readonly-check">
+        <span>🔒 Pouze pro čtení</span>
+      </label>
+      <div class="readonly-toggle-desc">Úkol uvidí všichni, ale běžní uživatelé ho nemohou označovat ani měnit.</div>
     </div>
 
     <!-- Tlačítka dole -->
@@ -1196,6 +1249,7 @@
     const taskInput = document.getElementById('task-input');
     const taskStartDate = document.getElementById('task-start-date');
     const taskDueDate = document.getElementById('task-due-date');
+    const taskReadOnlyCheck = document.getElementById('task-readonly-check');
     const peopleSelector = document.getElementById('people-selector');
     const sheetTitle = document.getElementById('sheet-title');
 
@@ -1260,7 +1314,11 @@
 
       const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
-      const myTasks = rawTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
+      // Počítadlo mých úkolů
+      const myTasks = rawTasks.filter(t => {
+        if (t.readOnly) return true; // readOnly úkoly se zobrazují všem
+        return Array.isArray(t.assignees) && t.assignees.includes(currentUser.name);
+      });
       const myActive = myTasks.filter(t => !t.completed && t.status !== 'completed' && t.status !== 'pending_approval');
       const myWithDeadline = myActive.filter(t => t.dueDate);
 
@@ -1480,7 +1538,6 @@
         const dayStr = String(day).padStart(2, '0');
         const cellDateStr = `${year}-${monthStr}-${dayStr}`;
 
-        // Schválené úkoly nemají tečku v kalendáři
         const dayTasks = rawTasks.filter(t => {
           const isDone = t.completed || t.status === 'completed';
           if (isDone) return false;
@@ -1544,7 +1601,7 @@
 
               miniItem.innerHTML = `
                 <span class="status-dot" style="background: ${taskColor};"></span>
-                <span style="flex: 1;">${t.text}</span>
+                <span style="flex: 1;">${t.readOnly ? '🔒 ' : ''}${t.text}</span>
                 <span style="font-size: 0.7rem; color: var(--text-muted);">${timeInfo}</span>
               `;
               calSelectedTasksList.appendChild(miniItem);
@@ -1599,16 +1656,16 @@
         const isApproved = task.completed || task.status === 'completed';
 
         if (isApproved) {
-          // U SCHVÁLENÉHO ÚKOLU: nelze upravovat čas ani text, pouze Znovu otevřít nebo Smazat
           sheetTitle.textContent = 'Schválený úkol';
           editableFieldsWrap.style.display = 'none';
           approvedInfoWrap.style.display = 'flex';
-          approvedInfoTitle.textContent = task.text;
+          approvedInfoTitle.textContent = (task.readOnly ? '🔒 ' : '') + task.text;
 
           let metaText = [];
           if (task.startDate) metaText.push(`Od: ${formatDateShort(task.startDate)}`);
           if (task.dueDate) metaText.push(`Do: ${formatDateTime(task.dueDate)}`);
           if (task.assignees && task.assignees.length > 0) metaText.push(`Přiřazeno: ${task.assignees.join(', ')}`);
+          if (task.readOnly) metaText.push(`Režim: Pouze pro čtení`);
 
           approvedInfoMeta.innerHTML = metaText.join('<br>') || 'Bez termínu';
 
@@ -1616,7 +1673,6 @@
           btnReopenTaskSheet.style.display = 'block';
           btnDeleteTaskSheet.style.display = 'block';
         } else {
-          // Běžná editace aktivního úkolu
           sheetTitle.textContent = 'Upravit úkol';
           editableFieldsWrap.style.display = 'block';
           approvedInfoWrap.style.display = 'none';
@@ -1625,13 +1681,13 @@
           taskStartDate.value = task.startDate || '';
           taskDueDate.value = task.dueDate || '';
           selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
+          taskReadOnlyCheck.checked = !!task.readOnly;
 
           btnSaveTask.style.display = 'block';
           btnReopenTaskSheet.style.display = 'none';
           btnDeleteTaskSheet.style.display = 'block';
         }
       } else {
-        // Vytvoření nového úkolu
         editingTaskId = null;
         sheetTitle.textContent = 'Nový úkol';
         editableFieldsWrap.style.display = 'block';
@@ -1641,6 +1697,7 @@
         taskStartDate.value = '';
         taskDueDate.value = '';
         selectedPeople = [];
+        taskReadOnlyCheck.checked = false;
 
         btnSaveTask.style.display = 'block';
         btnReopenTaskSheet.style.display = 'none';
@@ -1664,7 +1721,6 @@
     fabAdd.addEventListener('click', () => openBottomSheet(null));
     btnCloseSheet.addEventListener('click', closeBottomSheet);
 
-    // Tlačítko Znovu otevřít pro admina (unmarkne schválený úkol)
     btnReopenTaskSheet.addEventListener('click', () => {
       if (editingTaskId) {
         update(ref(db, `todos/${editingTaskId}`), {
@@ -1676,7 +1732,6 @@
       }
     });
 
-    // Smazání úkolu
     btnDeleteTaskSheet.addEventListener('click', () => {
       if (editingTaskId && confirm('Opravdu chceš tento úkol smazat?')) {
         remove(ref(db, `todos/${editingTaskId}`)).then(() => {
@@ -1703,7 +1758,8 @@
         text: text,
         startDate: taskStartDate.value || '',
         dueDate: taskDueDate.value || '',
-        assignees: selectedPeople
+        assignees: selectedPeople,
+        readOnly: taskReadOnlyCheck.checked
       };
 
       if (editingTaskId) {
@@ -1779,7 +1835,11 @@
 
       if (!isAdmin || currentFilter === 'my') {
         if (currentUser) {
-          displayTasks = displayTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
+          // Pokud je readOnly, vidí ho VŠICHNI, jinak podle přiřazených lidí
+          displayTasks = displayTasks.filter(t => {
+            if (t.readOnly) return true;
+            return Array.isArray(t.assignees) && t.assignees.includes(currentUser.name);
+          });
         } else {
           displayTasks = [];
         }
@@ -1795,7 +1855,7 @@
 
       emptyMsg.style.display = 'none';
 
-      // ŘAZENÍ: Schválené/dokončené jdou ÚPLNĚ DOLŮ pod všechny ostatní
+      // ŘAZENÍ: Schválené jdou dolů
       displayTasks.sort((a, b) => {
         const aCompleted = a.completed || a.status === 'completed';
         const bCompleted = b.completed || b.status === 'completed';
@@ -1818,6 +1878,7 @@
         const isPending = task.status === 'pending_approval';
         const isRejected = task.status === 'rejected';
         const isCompleted = task.completed || task.status === 'completed';
+        const isReadOnly = !!task.readOnly;
 
         let itemClass = 'task-item';
         if (isCompleted) itemClass += ' completed';
@@ -1861,7 +1922,6 @@
               </div>
             `;
           } else {
-            // Tužka je dostupná i pro schválené úkoly pro unmark/smazání
             actionsHtml = `
               <div class="task-actions-right">
                 <button class="btn-icon edit" title="${isCompleted ? 'Správa schváleného úkolu' : 'Upravit úkol'}">✏️</button>
@@ -1870,12 +1930,19 @@
           }
         }
 
-        const checkboxDisabled = (!isAdmin && isPending) || isCompleted ? 'disabled' : '';
+        // Checkbox chování:
+        // - Pokud je readOnly a uživatel NENÍ admin -> uzamčeno (disabled)
+        // - Pokud čeká na schválení a uživatel NENÍ admin -> uzamčeno (disabled)
+        // - Pokud je schváleno -> uzamčeno (disabled)
+        const isLockedForUser = (!isAdmin && isReadOnly) || (!isAdmin && isPending) || isCompleted;
+        const checkboxDisabled = isLockedForUser ? 'disabled' : '';
         const checkboxChecked = isCompleted || isPending ? 'checked' : '';
 
-        // Pokud je úkol schválený, barevná tečka se z úkolu kompletně ODEBERE
-        const statusDotHtml = !isCompleted ? `<span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>` : '';
+        // Pilulky před názvem
         const approvedBadgeHtml = isCompleted ? `<span class="badge-approved">Schváleno</span>` : '';
+        const readOnlyBadgeHtml = isReadOnly ? `<span class="badge-readonly" title="Všichni vidí, nelze označovat">🔒 Pouze pro čtení</span>` : '';
+
+        const statusDotHtml = !isCompleted ? `<span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>` : '';
 
         li.innerHTML = `
           <div class="task-main-row">
@@ -1884,6 +1951,7 @@
               <input type="checkbox" ${checkboxChecked} ${checkboxDisabled} data-id="${task.id}">
               <div class="task-text-wrap">
                 ${approvedBadgeHtml}
+                ${readOnlyBadgeHtml}
                 <span class="task-text">${task.text}</span>
               </div>
             </div>
@@ -1900,6 +1968,11 @@
               status: checked ? 'completed' : 'active'
             });
           } else {
+            // Pokud je readOnly, běžný uživatel se sem díky disabled ani nedostane
+            if (isReadOnly) {
+              e.preventDefault();
+              return;
+            }
             if (checked) {
               update(ref(db, `todos/${task.id}`), {
                 completed: false,
