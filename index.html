@@ -21,6 +21,7 @@
       --danger-hover: #dc2626;
       --border: #23314e;
       --accent: #10b981;
+      --warning: #f59e0b;
     }
 
     * {
@@ -50,7 +51,7 @@
       top: 0;
       background: rgba(11, 15, 25, 0.95);
       backdrop-filter: blur(10px);
-      padding: 14px 18px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -58,32 +59,83 @@
       z-index: 30;
     }
 
-    /* Klikací logo/název */
+    /* Vlevo: Logo a Profil */
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
     .brand-title {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 800;
       letter-spacing: -0.5px;
-      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .brand-title:active {
-      opacity: 0.75;
-    }
-
     .brand-title span.arrow {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
     }
 
-    .auth-section {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .user-pill {
+      font-size: 0.75rem;
+      background: #080c14;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 12px;
+      color: #93c5fd;
     }
 
+    /* Vpravo: Kalendář */
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-cal {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 7px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-cal:active {
+      transform: scale(0.95);
+      background-color: #334155;
+    }
+
+    /* Červený notifikační pás pod hlavičkou */
+    .alert-strip {
+      width: 100%;
+      background: linear-gradient(90deg, #b91c1c, #dc2626);
+      color: #ffffff;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
+      z-index: 25;
+    }
+
+    .alert-strip span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Společné prvky tlačítek */
     button {
       padding: 9px 14px;
       border-radius: 10px;
@@ -183,6 +235,36 @@
       word-break: break-word;
     }
 
+    /* Informace o datu u úkolu */
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.72rem;
+    }
+
+    .date-badge {
+      background-color: #0b1329;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-badge.due {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .date-badge.due.expired {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      font-weight: 700;
+    }
+
     .assignees-container {
       display: flex;
       flex-wrap: wrap;
@@ -201,7 +283,6 @@
       gap: 4px;
     }
 
-    /* Admin akce v úkolu */
     .task-actions {
       display: flex;
       align-items: center;
@@ -220,10 +301,6 @@
 
     .btn-icon:active {
       color: var(--text-main);
-    }
-
-    .btn-delete:active {
-      color: var(--danger);
     }
 
     .empty-msg {
@@ -280,9 +357,9 @@
       background-color: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 22px;
-      width: calc(100% - 40px);
-      max-width: 380px;
+      padding: 20px;
+      width: calc(100% - 36px);
+      max-width: 400px;
       z-index: 101;
       display: none;
       flex-direction: column;
@@ -298,9 +375,9 @@
       font-size: 1.2rem;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], input[type="date"], input[type="datetime-local"] {
       font-size: 16px !important;
-      padding: 12px 14px;
+      padding: 11px 12px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background-color: #0b1329;
@@ -320,7 +397,7 @@
       margin-top: 4px;
     }
 
-    /* Uživatelské menu (klik na VirtusChat) */
+    /* Uživatelské menu */
     .user-info-box {
       background-color: #0b1329;
       border: 1px solid var(--border);
@@ -356,7 +433,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* Mobilní Bottom Sheet (Vytvoření / Editace úkolu) */
+    /* Spodní vysouvací panel (Úkoly) */
     .bottom-sheet {
       position: fixed;
       left: 0;
@@ -371,6 +448,8 @@
       transform: translateY(100%);
       transition: transform 0.28s cubic-bezier(0.1, 0.9, 0.2, 1);
       box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .bottom-sheet.active {
@@ -390,12 +469,27 @@
       margin-bottom: 14px;
     }
 
-    .sheet-section-title {
-      font-size: 0.8rem;
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      font-size: 0.78rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin: 14px 0 10px;
+    }
+
+    .dates-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dates-row .form-group {
+      flex: 1;
     }
 
     .people-selector {
@@ -459,19 +553,107 @@
       flex: 1;
       padding: 12px;
     }
+
+    /* Kalendář v modálu */
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .cal-header h3 {
+      font-size: 1rem;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    .cal-day-name {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding-bottom: 4px;
+    }
+
+    .cal-cell {
+      padding: 8px 0;
+      border-radius: 8px;
+      background: #0b1329;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .cal-cell.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .cal-cell.today {
+      border: 1px solid var(--primary);
+    }
+
+    .cal-cell.selected {
+      background-color: var(--primary) !important;
+      color: white;
+      font-weight: 700;
+    }
+
+    .cal-cell.has-task::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      background-color: var(--danger);
+      border-radius: 50%;
+    }
+
+    .cal-task-details {
+      max-height: 120px;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .cal-task-item {
+      background: #0b1329;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Horní lišta: jen VirtusChat -->
+  <!-- Horní lišta: Vlevo VirtusChat + profil, Vpravo Kalendář -->
   <header>
-    <div class="brand-title" id="brand-menu-btn" title="Uživatelské menu">
-      VirtusChat <span class="arrow">▼</span>
+    <div class="brand-left" id="brand-menu-btn" title="Otevřít profil / přihlášení">
+      <div class="brand-title">
+        VirtusChat <span class="arrow">▼</span>
+      </div>
+      <div id="header-user-badge"></div>
     </div>
-    <div class="auth-section" id="auth-section">
-      <button class="btn-primary" id="btn-open-login">Přihlásit</button>
+    <div class="header-right">
+      <button class="btn-cal" id="btn-open-calendar" title="Kalendář úkolů">📅</button>
     </div>
   </header>
+
+  <!-- Červený notifikační pás pod hlavičkou -->
+  <div class="alert-strip" id="alert-strip" style="display: none;">
+    <span id="alert-strip-text">Načítám úkoly...</span>
+    <span id="alert-strip-badge" style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px;"></span>
+  </div>
 
   <!-- Seznam úkolů -->
   <div class="container">
@@ -479,16 +661,16 @@
     <div class="empty-msg" id="empty-msg">Načítám úkoly...</div>
   </div>
 
-  <!-- Tlačítko + vlevo dole (jen pro adminy) -->
+  <!-- Plovoucí tlačítko vlevo dole (jen pro adminy) -->
   <button class="fab-btn" id="fab-add" title="Nový úkol">+</button>
 
-  <!-- Pozadí modálů -->
+  <!-- Pozadí overlay -->
   <div class="overlay" id="overlay"></div>
 
   <!-- Přihlašovací Modal -->
   <div class="modal" id="login-modal">
     <h2>Přihlášení</h2>
-    <input type="text" id="login-username" placeholder="Uživatel (jakub, daniel...)" autocomplete="username" autocapitalize="none">
+    <input type="text" id="login-username" placeholder="Uživatel (jakub, daniel, tomas, marek)" autocomplete="username" autocapitalize="none">
     <input type="password" id="login-password" placeholder="Heslo" autocomplete="current-password">
     <div class="modal-actions">
       <button class="btn-secondary" id="btn-close-login">Zrušit</button>
@@ -496,10 +678,9 @@
     </div>
   </div>
 
-  <!-- Uživatelské Menu Modal (po kliknutí na VirtusChat) -->
+  <!-- Uživatelské Menu Modal -->
   <div class="modal" id="user-menu-modal">
     <h2>Tvůj profil</h2>
-    
     <div class="user-info-box">
       <div>
         <strong id="menu-user-name" style="font-size: 1.05rem;">Uživatel</strong>
@@ -508,7 +689,6 @@
       <span class="role-tag" id="menu-user-role">Role</span>
     </div>
 
-    <!-- Změna hesla -->
     <div class="password-section">
       <label for="input-new-password">Změna hesla</label>
       <input type="password" id="input-new-password" placeholder="Nové heslo">
@@ -521,14 +701,47 @@
     </div>
   </div>
 
-  <!-- Vysouvací panel pro vytvoření / editaci úkolu -->
+  <!-- Kalendář Modal -->
+  <div class="modal" id="calendar-modal">
+    <div class="cal-header">
+      <button class="btn-secondary" id="cal-prev" style="padding: 4px 10px;">&lt;</button>
+      <h3 id="cal-month-title">Měsíc Rok</h3>
+      <button class="btn-secondary" id="cal-next" style="padding: 4px 10px;">&gt;</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-task-details" id="cal-task-details">
+      <div style="color: var(--text-muted);">Klikni na označený den pro zobrazení úkolů.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btn-close-cal">Zavřít</button>
+    </div>
+  </div>
+
+  <!-- Vysouvací panel pro vytvoření / editaci úkolu (Admin) -->
   <div class="bottom-sheet" id="bottom-sheet">
     <div class="sheet-handle"></div>
     <h2 id="sheet-title">Nový úkol</h2>
-    <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
 
-    <div class="sheet-section-title">Přiřadit lidi (klepnutím vyber):</div>
-    <div class="people-selector" id="people-selector"></div>
+    <div class="form-group">
+      <label>Popis úkolu</label>
+      <input type="text" id="task-input" placeholder="Co je potřeba udělat?">
+    </div>
+
+    <div class="dates-row">
+      <div class="form-group">
+        <label>Od kdy (výchozí: Dnes)</label>
+        <input type="date" id="task-start-date">
+      </div>
+      <div class="form-group">
+        <label>Do kdy (Termín)</label>
+        <input type="datetime-local" id="task-due-date">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Přiřadit lidi (klepnutím vyber):</label>
+      <div class="people-selector" id="people-selector"></div>
+    </div>
 
     <div class="sheet-actions">
       <button class="btn-secondary" id="btn-close-sheet">Zavřít</button>
@@ -559,21 +772,27 @@
 
     let currentUser = JSON.parse(localStorage.getItem('pwa_logged_user')) || null;
     let allUsers = {};
+    let allRawTasks = {};
     let selectedPeople = [];
-    let editingTaskId = null; // Pokud editujeme, držíme ID úkolu
+    let editingTaskId = null;
+
+    // Kalendář stav
+    let calCurrentDate = new Date();
 
     // DOM elementy
     const brandMenuBtn = document.getElementById('brand-menu-btn');
-    const authSection = document.getElementById('auth-section');
-    const btnOpenLogin = document.getElementById('btn-open-login');
-    const btnCloseLogin = document.getElementById('btn-close-login');
-    const btnSubmitLogin = document.getElementById('btn-submit-login');
-    const loginModal = document.getElementById('login-modal');
+    const headerUserBadge = document.getElementById('header-user-badge');
+    const alertStrip = document.getElementById('alert-strip');
+    const alertStripText = document.getElementById('alert-strip-text');
+    const alertStripBadge = document.getElementById('alert-strip-badge');
+
     const overlay = document.getElementById('overlay');
+    const loginModal = document.getElementById('login-modal');
     const loginUsername = document.getElementById('login-username');
     const loginPassword = document.getElementById('login-password');
+    const btnSubmitLogin = document.getElementById('btn-submit-login');
+    const btnCloseLogin = document.getElementById('btn-close-login');
 
-    // Menu uživatele
     const userMenuModal = document.getElementById('user-menu-modal');
     const menuUserName = document.getElementById('menu-user-name');
     const menuUserId = document.getElementById('menu-user-id');
@@ -583,43 +802,57 @@
     const btnLogout = document.getElementById('btn-logout');
     const btnCloseUserMenu = document.getElementById('btn-close-user-menu');
 
-    // Bottom Sheet (Úkoly)
     const fabAdd = document.getElementById('fab-add');
     const bottomSheet = document.getElementById('bottom-sheet');
     const sheetTitle = document.getElementById('sheet-title');
+    const taskInput = document.getElementById('task-input');
+    const taskStartDate = document.getElementById('task-start-date');
+    const taskDueDate = document.getElementById('task-due-date');
+    const peopleSelector = document.getElementById('people-selector');
     const btnCloseSheet = document.getElementById('btn-close-sheet');
     const btnConfirmTask = document.getElementById('btn-confirm-task');
-    const taskInput = document.getElementById('task-input');
-    const peopleSelector = document.getElementById('people-selector');
+
     const taskList = document.getElementById('task-list');
     const emptyMsg = document.getElementById('empty-msg');
+
+    // Kalendář DOM
+    const btnOpenCalendar = document.getElementById('btn-open-calendar');
+    const calendarModal = document.getElementById('calendar-modal');
+    const btnCloseCal = document.getElementById('btn-close-cal');
+    const calMonthTitle = document.getElementById('cal-month-title');
+    const calGrid = document.getElementById('cal-grid');
+    const calTaskDetails = document.getElementById('cal-task-details');
+    const calPrev = document.getElementById('cal-prev');
+    const calNext = document.getElementById('cal-next');
 
     function isAdmin() {
       return currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
     }
 
+    function getTodayString() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     function updateAuthUI() {
       if (currentUser) {
-        authSection.innerHTML = `
-          <button class="btn-secondary" id="btn-quick-profile" style="padding: 6px 12px; font-size: 0.8rem;">
-            👤 ${currentUser.name}
-          </button>
-        `;
-        document.getElementById('btn-quick-profile').addEventListener('click', openUserMenu);
-
+        headerUserBadge.innerHTML = `<span class="user-pill">👤 ${currentUser.name}</span>`;
         if (isAdmin()) {
           fabAdd.style.display = 'flex';
         } else {
           fabAdd.style.display = 'none';
         }
       } else {
-        authSection.innerHTML = `<button class="btn-primary" id="btn-open-login">Přihlásit</button>`;
-        document.getElementById('btn-open-login').addEventListener('click', openLoginModal);
+        headerUserBadge.innerHTML = `<span class="user-pill" style="color: var(--primary);">Přihlásit</span>`;
         fabAdd.style.display = 'none';
       }
+      renderFilteredTasks();
     }
 
-    // Kliknutí na "VirtusChat" otevře menu účtu
+    // Kliknutí vlevo na VirtusChat / Profil
     brandMenuBtn.addEventListener('click', () => {
       if (currentUser) {
         openUserMenu();
@@ -628,50 +861,6 @@
       }
     });
 
-    function openUserMenu() {
-      menuUserName.textContent = currentUser.name;
-      menuUserId.textContent = `@${currentUser.id}`;
-      menuUserRole.textContent = currentUser.role;
-      inputNewPassword.value = '';
-      userMenuModal.classList.add('active');
-      overlay.classList.add('active');
-    }
-
-    function closeUserMenu() {
-      userMenuModal.classList.remove('active');
-      overlay.classList.remove('active');
-    }
-
-    btnCloseUserMenu.addEventListener('click', closeUserMenu);
-
-    // Změna hesla přímo v RTDB
-    btnChangePassword.addEventListener('click', async () => {
-      const newPass = inputNewPassword.value.trim();
-      if (!newPass) {
-        alert('Zadej nové heslo.');
-        return;
-      }
-
-      try {
-        await update(ref(db, `users/${currentUser.id}`), {
-          password: newPass
-        });
-        alert('Heslo bylo úspěšně změněno!');
-        inputNewPassword.value = '';
-        closeUserMenu();
-      } catch (err) {
-        alert('Chyba při změně hesla: ' + err.message);
-      }
-    });
-
-    btnLogout.addEventListener('click', () => {
-      currentUser = null;
-      localStorage.removeItem('pwa_logged_user');
-      closeUserMenu();
-      updateAuthUI();
-    });
-
-    // Login modal
     function openLoginModal() {
       loginModal.classList.add('active');
       overlay.classList.add('active');
@@ -685,7 +874,6 @@
       overlay.classList.remove('active');
     }
 
-    btnOpenLogin?.addEventListener('click', openLoginModal);
     btnCloseLogin.addEventListener('click', closeLoginModal);
 
     btnSubmitLogin.addEventListener('click', async () => {
@@ -723,7 +911,47 @@
       }
     });
 
-    // Realtime poslech seznamu lidí pro avatary
+    function openUserMenu() {
+      menuUserName.textContent = currentUser.name;
+      menuUserId.textContent = `@${currentUser.id}`;
+      menuUserRole.textContent = currentUser.role;
+      inputNewPassword.value = '';
+      userMenuModal.classList.add('active');
+      overlay.classList.add('active');
+    }
+
+    function closeUserMenu() {
+      userMenuModal.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    btnCloseUserMenu.addEventListener('click', closeUserMenu);
+
+    btnChangePassword.addEventListener('click', async () => {
+      const newPass = inputNewPassword.value.trim();
+      if (!newPass) {
+        alert('Zadej nové heslo.');
+        return;
+      }
+
+      try {
+        await update(ref(db, `users/${currentUser.id}`), { password: newPass });
+        alert('Heslo změněno!');
+        inputNewPassword.value = '';
+        closeUserMenu();
+      } catch (err) {
+        alert('Chyba při změně hesla: ' + err.message);
+      }
+    });
+
+    btnLogout.addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('pwa_logged_user');
+      closeUserMenu();
+      updateAuthUI();
+    });
+
+    // Realtime poslech seznamu lidí pro výběr
     onValue(usersRef, (snapshot) => {
       allUsers = snapshot.val() || {};
       renderPeopleSelector();
@@ -758,25 +986,29 @@
       });
     }
 
-    // Otevření panelu pro nový úkol
+    // Otevření popupu pro nový úkol
     function openCreateSheet() {
       editingTaskId = null;
       sheetTitle.textContent = 'Nový úkol';
       btnConfirmTask.textContent = 'Přidat úkol';
       selectedPeople = [];
       taskInput.value = '';
+      taskStartDate.value = getTodayString();
+      taskDueDate.value = '';
       renderPeopleSelector();
       bottomSheet.classList.add('active');
       overlay.classList.add('active');
       taskInput.focus();
     }
 
-    // Otevření panelu pro editaci úkolu (Admin)
+    // Editace úkolu pro Adminy
     function openEditSheet(task) {
       editingTaskId = task.id;
       sheetTitle.textContent = 'Upravit úkol';
       btnConfirmTask.textContent = 'Uložit změny';
       taskInput.value = task.text || '';
+      taskStartDate.value = task.startDate || getTodayString();
+      taskDueDate.value = task.dueDate || '';
       selectedPeople = Array.isArray(task.assignees) ? [...task.assignees] : [];
       renderPeopleSelector();
       bottomSheet.classList.add('active');
@@ -792,13 +1024,15 @@
 
     fabAdd.addEventListener('click', openCreateSheet);
     btnCloseSheet.addEventListener('click', closeBottomSheet);
+
     overlay.addEventListener('click', () => {
       closeLoginModal();
       closeUserMenu();
       closeBottomSheet();
+      closeCalendarModal();
     });
 
-    // Uložení úkolu (vytvoření nebo přepsání)
+    // Uložení úkolu
     btnConfirmTask.addEventListener('click', () => {
       const text = taskInput.value.trim();
       if (!text) {
@@ -806,38 +1040,88 @@
         return;
       }
 
+      const sDate = taskStartDate.value || getTodayString();
+      const dDate = taskDueDate.value || null;
+
       if (editingTaskId) {
-        // Editace stávajícího
         update(ref(db, `todos/${editingTaskId}`), {
           text: text,
+          startDate: sDate,
+          dueDate: dDate,
           assignees: selectedPeople
         }).then(() => {
           closeBottomSheet();
-        }).catch(err => {
-          alert('Chyba: ' + err.message);
-        });
+        }).catch(err => alert('Chyba: ' + err.message));
       } else {
-        // Vytvoření nového
         push(todosRef, {
           text: text,
           completed: false,
+          startDate: sDate,
+          dueDate: dDate,
           assignees: selectedPeople,
           createdAt: Date.now(),
           createdBy: currentUser ? currentUser.name : 'Neznámý'
         }).then(() => {
           closeBottomSheet();
-        }).catch(err => {
-          alert('Chyba: ' + err.message);
-        });
+        }).catch(err => alert('Chyba: ' + err.message));
       }
     });
 
-    // Realtime poslech seznamu úkolů
+    // Poslech úkolů z RTDB
     onValue(todosRef, (snapshot) => {
-      taskList.innerHTML = '';
-      const data = snapshot.val();
+      allRawTasks = snapshot.val() || {};
+      renderFilteredTasks();
+    }, (error) => {
+      emptyMsg.textContent = 'Chyba načítání: ' + error.message;
+    });
 
-      if (!data) {
+    // Vykreslení úkolů podle role (Admin vs User) + Červený notifikační pás
+    function renderFilteredTasks() {
+      taskList.innerHTML = '';
+      
+      const tasks = Object.entries(allRawTasks).map(([id, task]) => ({ id, ...task }));
+      tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      // Filtrování: Admin vidí vše, User vidí jen své úkoly
+      const visibleTasks = tasks.filter(task => {
+        if (!currentUser) return false;
+        if (isAdmin()) return true;
+        const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
+        return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
+      });
+
+      // Výpočet pro ČERVENÝ NOTIFIKAČNÍ PÁS
+      if (currentUser) {
+        alertStrip.style.display = 'flex';
+        const uncompleted = visibleTasks.filter(t => !t.completed);
+        const withDueDate = uncompleted.filter(t => t.dueDate);
+        
+        // Zkontrolujeme zpožděné úkoly
+        const now = new Date();
+        const overdue = withDueDate.filter(t => new Date(t.dueDate) < now);
+
+        if (uncompleted.length === 0) {
+          alertStripText.textContent = `Vše hotovo! Nemáš žádné otevřené úkoly.`;
+          alertStripBadge.textContent = '0 úkolů';
+        } else {
+          let msg = `Máš ${uncompleted.length} ${uncompleted.length === 1 ? 'úkol' : (uncompleted.length < 5 ? 'úkoly' : 'úkolů')}, z toho ${withDueDate.length} s termínem.`;
+          if (overdue.length > 0) {
+            msg += ` ⚠️ ${overdue.length} po termínu!`;
+          }
+          alertStripText.textContent = msg;
+          alertStripBadge.textContent = `${uncompleted.length} aktivní`;
+        }
+      } else {
+        alertStrip.style.display = 'none';
+      }
+
+      if (!currentUser) {
+        emptyMsg.textContent = 'Pro zobrazení úkolů se přihlas vlevo nahoře.';
+        emptyMsg.style.display = 'block';
+        return;
+      }
+
+      if (visibleTasks.length === 0) {
         emptyMsg.textContent = 'Žádné úkoly k zobrazení.';
         emptyMsg.style.display = 'block';
         return;
@@ -845,14 +1129,11 @@
 
       emptyMsg.style.display = 'none';
 
-      const tasks = Object.entries(data).map(([id, task]) => ({ id, ...task }));
-      tasks.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-      tasks.forEach((task) => {
+      visibleTasks.forEach((task) => {
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
-        // Ikonky přiřazených lidí
+        // Lidé
         let assigneesHtml = '';
         const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
         if (taskAssignees.length > 0) {
@@ -861,18 +1142,26 @@
           `).join('');
         }
 
-        // KONTROLA PRÁVA NA ODŠKRTNUTÍ:
-        // Může jen ten, kdo je přiřazený (podle jména nebo ID), NEBO admin
-        let canToggle = false;
-        if (currentUser) {
-          if (isAdmin()) {
-            canToggle = true;
-          } else if (taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id)) {
-            canToggle = true;
-          }
+        // Datum Od - Do
+        let dateHtml = '';
+        if (task.startDate) {
+          const sD = new Date(task.startDate);
+          dateHtml += `<span class="date-badge">Od: ${sD.toLocaleDateString('cs-CZ')}</span>`;
+        }
+        if (task.dueDate) {
+          const dD = new Date(task.dueDate);
+          const isExpired = !task.completed && dD < new Date();
+          const dueFormat = `${dD.toLocaleDateString('cs-CZ')} ${dD.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}`;
+          dateHtml += `<span class="date-badge due ${isExpired ? 'expired' : ''}">Do: ${dueFormat}${isExpired ? ' (Po termínu!)' : ''}</span>`;
         }
 
-        // Tlačítka pro Admina: Edit (tužka) + Delete (křížek)
+        // Kdo může odškrtnout: přiřazený člověk nebo admin
+        let canToggle = false;
+        if (isAdmin() || taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id)) {
+          canToggle = true;
+        }
+
+        // Akce pro admina
         let adminButtonsHtml = '';
         if (isAdmin()) {
           adminButtonsHtml = `
@@ -885,29 +1174,24 @@
 
         li.innerHTML = `
           <div class="task-left">
-            <input type="checkbox" ${task.completed ? 'checked' : ''} ${canToggle ? '' : 'disabled'} title="${canToggle ? 'Označit jako hotové' : 'Tento úkol není přiřazen tobě'}">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} ${canToggle ? '' : 'disabled'} title="${canToggle ? 'Označit hotovo' : 'Nemáš oprávnění k tomuto úkolu'}">
             <div class="task-details">
               <span class="task-text">${task.text}</span>
+              ${dateHtml ? `<div class="task-meta">${dateHtml}</div>` : ''}
               ${assigneesHtml ? `<div class="assignees-container">${assigneesHtml}</div>` : ''}
             </div>
           </div>
           ${adminButtonsHtml}
         `;
 
-        // Event odškrtnutí
         if (canToggle) {
           li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-            update(ref(db, `todos/${task.id}`), {
-              completed: e.target.checked
-            });
+            update(ref(db, `todos/${task.id}`), { completed: e.target.checked });
           });
         }
 
-        // Admin eventy
         if (isAdmin()) {
-          li.querySelector('.btn-edit').addEventListener('click', () => {
-            openEditSheet(task);
-          });
+          li.querySelector('.btn-edit').addEventListener('click', () => openEditSheet(task));
           li.querySelector('.btn-delete').addEventListener('click', () => {
             if (confirm(`Opravdu smazat úkol: "${task.text}"?`)) {
               remove(ref(db, `todos/${task.id}`));
@@ -917,31 +1201,130 @@
 
         taskList.appendChild(li);
       });
-    }, (error) => {
-      emptyMsg.textContent = 'Chyba načítání: ' + error.message;
+    }
+
+    // ================= KALENDÁŘ LOGIKA =================
+    btnOpenCalendar.addEventListener('click', () => {
+      calCurrentDate = new Date();
+      renderCalendar();
+      calendarModal.classList.add('active');
+      overlay.classList.add('active');
     });
 
-    // PWA Service Worker s okamžitou aktualizací
+    function closeCalendarModal() {
+      calendarModal.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    btnCloseCal.addEventListener('click', closeCalendarModal);
+
+    calPrev.addEventListener('click', () => {
+      calCurrentDate.setMonth(calCurrentDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    calNext.addEventListener('click', () => {
+      calCurrentDate.setMonth(calCurrentDate.getMonth() + 1);
+      renderCalendar();
+    });
+
+    function renderCalendar() {
+      calGrid.innerHTML = '';
+      const year = calCurrentDate.getFullYear();
+      const month = calCurrentDate.getMonth();
+
+      const monthNames = ["Leden", "Únor", "Březen", "Duben", "Květen", "Červen", "Červenec", "Srpen", "Září", "Říjen", "Listopad", "Prosinec"];
+      calMonthTitle.textContent = `${monthNames[month]} ${year}`;
+
+      // Dny v týdnu
+      const dayNames = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
+      dayNames.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-day-name';
+        el.textContent = d;
+        calGrid.appendChild(el);
+      });
+
+      const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; // Pondělí = 0
+      const totalDays = new Date(year, month + 1, 0).getDate();
+
+      // Prázdné buňky před začátkem měsíce
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'cal-cell empty';
+        calGrid.appendChild(emptyCell);
+      }
+
+      // Úkoly viditelné pro daného uživatele
+      const tasks = Object.values(allRawTasks).filter(task => {
+        if (!currentUser) return false;
+        if (isAdmin()) return true;
+        const taskAssignees = Array.isArray(task.assignees) ? task.assignees : [];
+        return taskAssignees.includes(currentUser.name) || taskAssignees.includes(currentUser.id);
+      });
+
+      const todayStr = getTodayString();
+
+      for (let day = 1; day <= totalDays; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell';
+        cell.textContent = day;
+
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (dateStr === todayStr) {
+          cell.classList.add('today');
+        }
+
+        // Najít úkoly pro tento den (podle startDate nebo dueDate)
+        const dayTasks = tasks.filter(t => {
+          const s = t.startDate ? t.startDate.slice(0, 10) : null;
+          const d = t.dueDate ? t.dueDate.slice(0, 10) : null;
+          return s === dateStr || d === dateStr;
+        });
+
+        if (dayTasks.length > 0) {
+          cell.classList.add('has-task');
+        }
+
+        cell.addEventListener('click', () => {
+          document.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+          cell.classList.add('selected');
+
+          // Vypsat úkoly
+          calTaskDetails.innerHTML = '';
+          if (dayTasks.length === 0) {
+            calTaskDetails.innerHTML = `<div style="color: var(--text-muted);">Žádné úkoly pro ${day}. ${month + 1}. ${year}</div>`;
+          } else {
+            dayTasks.forEach(t => {
+              const item = document.createElement('div');
+              item.className = 'cal-task-item';
+              item.innerHTML = `<strong>${t.completed ? '✓ ' : ''}${t.text}</strong><br><small style="color: var(--text-muted);">${t.dueDate ? 'Termín: ' + t.dueDate.replace('T', ' ') : 'Bez termínu'}</small>`;
+              calTaskDetails.appendChild(item);
+            });
+          }
+        });
+
+        calGrid.appendChild(cell);
+      }
+    }
+
+    // Service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then((registration) => {
-          registration.update();
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          reg.update();
           document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              registration.update();
-            }
+            if (document.visibilityState === 'visible') reg.update();
           });
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  window.location.reload();
-                }
+          reg.addEventListener('updatefound', () => {
+            const w = reg.installing;
+            if (w) {
+              w.addEventListener('statechange', () => {
+                if (w.state === 'installed' && navigator.serviceWorker.controller) window.location.reload();
               });
             }
           });
-        }).catch((err) => console.log('SW chyba:', err));
+        }).catch(err => console.log('SW chyba:', err));
 
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
