@@ -369,7 +369,7 @@
       word-break: break-word;
     }
 
-    /* Schvalovací tlačítka pro Admina (místo tužky) */
+    /* Tlačítka pro Admina (místo tužky) */
     .task-actions-right {
       display: flex;
       align-items: center;
@@ -1212,7 +1212,7 @@
       const isAdmin = currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
       const myTasks = rawTasks.filter(t => Array.isArray(t.assignees) && t.assignees.includes(currentUser.name));
-      const myActive = myTasks.filter(t => !t.completed && t.status !== 'pending_approval');
+      const myActive = myTasks.filter(t => !t.completed && t.status !== 'completed' && t.status !== 'pending_approval');
       const myWithDeadline = myActive.filter(t => t.dueDate);
 
       const count = myActive.length;
@@ -1431,7 +1431,11 @@
         const dayStr = String(day).padStart(2, '0');
         const cellDateStr = `${year}-${monthStr}-${dayStr}`;
 
+        // Schválené/hotové úkoly NEMUTEJÍ mít tečku v kalendáři
         const dayTasks = rawTasks.filter(t => {
+          const isDone = t.completed || t.status === 'completed';
+          if (isDone) return false;
+
           if (!t.dueDate && !t.startDate) return false;
 
           const start = t.startDate ? t.startDate.slice(0, 10) : (t.dueDate ? t.dueDate.slice(0, 10) : '');
@@ -1473,7 +1477,7 @@
           calSelectedTasksList.innerHTML = '';
 
           if (dayTasks.length === 0) {
-            calSelectedTasksList.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">V tento den neprobíhá žádný úkol.</span>`;
+            calSelectedTasksList.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">V tento den neprobíhá žádný aktivní úkol.</span>`;
           } else {
             dayTasks.forEach(t => {
               const taskColor = getTaskColor(t);
@@ -1491,7 +1495,7 @@
 
               miniItem.innerHTML = `
                 <span class="status-dot" style="background: ${taskColor};"></span>
-                <span style="flex: 1; ${t.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${t.text}</span>
+                <span style="flex: 1;">${t.text}</span>
                 <span style="font-size: 0.7rem; color: var(--text-muted);">${timeInfo}</span>
               `;
               calSelectedTasksList.appendChild(miniItem);
@@ -1691,16 +1695,15 @@
 
       emptyMsg.style.display = 'none';
 
-      // ŘAZENÍ: Schválené/dokončené jdou ÚPLNĚ DOLŮ pod všechny ostatní
+      // Schválené jdou dolů
       displayTasks.sort((a, b) => {
         const aCompleted = a.completed || a.status === 'completed';
         const bCompleted = b.completed || b.status === 'completed';
 
         if (aCompleted !== bCompleted) {
-          return aCompleted ? 1 : -1; // Dokončené dolů
+          return aCompleted ? 1 : -1;
         }
 
-        // Čekající na schválení jsou prioritně nahoře
         const aPending = a.status === 'pending_approval';
         const bPending = b.status === 'pending_approval';
         if (aPending !== bPending) {
@@ -1747,7 +1750,6 @@
           metaHtml += `<div class="assignees-wrap">${assigneesHtml}</div>`;
         }
 
-        // Tlačítka vpravo: pokud je pending, admin má MÍSTO TUŽKY schválit/neschválit
         let actionsHtml = '';
         if (isAdmin) {
           if (isPending) {
@@ -1766,19 +1768,17 @@
           }
         }
 
-        // Checkbox:
-        // 1. Když ceka na schvaleni (pending), USER ho NEMŮŽE odškrtnout (disabled)
-        // 2. Když je schváleno (completed), je uzamčený a zaškrtnutý
         const checkboxDisabled = (!isAdmin && isPending) || isCompleted ? 'disabled' : '';
         const checkboxChecked = isCompleted || isPending ? 'checked' : '';
 
-        // Před názvem se objeví pilulka "Schváleno"
+        // Pokud je úkol schválený, tečka se z úkolu kompletně ODEBERE
+        const statusDotHtml = !isCompleted ? `<span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>` : '';
         const approvedBadgeHtml = isCompleted ? `<span class="badge-approved">Schváleno</span>` : '';
 
         li.innerHTML = `
           <div class="task-main-row">
             <div class="task-left">
-              <span class="status-dot" style="background: ${taskColor};" title="Barva úkolu v kalendáři"></span>
+              ${statusDotHtml}
               <input type="checkbox" ${checkboxChecked} ${checkboxDisabled} data-id="${task.id}">
               <div class="task-text-wrap">
                 ${approvedBadgeHtml}
@@ -1790,17 +1790,14 @@
           ${metaHtml ? `<div class="task-meta-row">${metaHtml}</div>` : ''}
         `;
 
-        // Logika kliknutí na checkbox
         li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
           const checked = e.target.checked;
           if (isAdmin) {
-            // Admin odškrtnutím rovnou schvaluje/dokončuje
             update(ref(db, `todos/${task.id}`), {
               completed: checked,
               status: checked ? 'completed' : 'active'
             });
           } else {
-            // Běžný uživatel: zaškrtnutím posílá ke schválení (zčervenání se ruší)
             if (checked) {
               update(ref(db, `todos/${task.id}`), {
                 completed: false,
@@ -1810,10 +1807,8 @@
           }
         });
 
-        // Admin akce: Schválit / Neschválit / Editovat
         if (isAdmin) {
           if (isPending) {
-            // SCHVÁLIT: zůstane zaškrtnutý, status completed, posune se dolů
             li.querySelector('.btn-action-approve').addEventListener('click', () => {
               update(ref(db, `todos/${task.id}`), {
                 completed: true,
@@ -1821,7 +1816,6 @@
               });
             });
 
-            // NESCHVÁLIT: odznačí se, zčervená do dalšího označení
             li.querySelector('.btn-action-reject').addEventListener('click', () => {
               update(ref(db, `todos/${task.id}`), {
                 completed: false,
