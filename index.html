@@ -348,7 +348,7 @@
       margin: 14px 0 10px;
     }
 
-    /* Horizontální výběr lidí pro prsty */
+    /* Horizontální výběr lidí */
     .people-selector {
       display: flex;
       gap: 14px;
@@ -716,11 +716,41 @@
       });
     });
 
+    // PWA Service Worker s automatickou kontrolou změn 24/7
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('SW registrován.'))
-          .catch((err) => console.log('SW chyba:', err));
+        navigator.serviceWorker.register('sw.js').then((registration) => {
+          // Kontrola změn na GitHubu hned při startu
+          registration.update();
+
+          // Kontrola změn při návratu do aplikace / přepnutí panelu
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              registration.update();
+            }
+          });
+
+          // Automatický refresh při nalezení nového buildu
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  window.location.reload();
+                }
+              });
+            }
+          });
+        }).catch((err) => console.log('SW chyba:', err));
+
+        // Reaktivace a obnovení okna, když nový Service Worker převezme kontrolu
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
       });
     }
 
